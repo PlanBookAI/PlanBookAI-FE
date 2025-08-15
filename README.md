@@ -53,8 +53,8 @@ src/
 
 1. Clone repository:
 ```bash
-git clone <repository-url>
-cd planbook-ai-frontend
+git clone [<repository-url>](https://github.com/PlanBookAI/PlanBookAI-FE)
+cd planbookai-fe
 ```
 
 2. Cài đặt dependencies:
@@ -138,23 +138,9 @@ Dự án được cấu hình để deploy trên Vercel với:
 - Biến môi trường
 - Headers bảo mật
 
-## 🤝 Đóng góp
-
-1. Fork dự án
-2. Tạo feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit thay đổi (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Mở Pull Request
-
 ## 📄 License
 
 Dự án này được phân phối dưới giấy phép MIT. Xem `LICENSE` để biết thêm chi tiết.
-
-## 📞 Liên hệ
-
-- **Team**: PlanBook AI Development Team
-- **Email**: dev@planbook-ai.com
-- **Website**: https://planbook-ai.com
 
 ## 🙏 Cảm ơn
 
