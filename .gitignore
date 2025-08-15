@@ -39,6 +39,12 @@ next-env.d.ts
 *.swp
 *.swo
 
+# Task and Documentation folders
+TASKS/
+TASK/
+tasks/
+task/
+
 # OS
 Thumbs.db
 
