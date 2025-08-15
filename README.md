@@ -53,8 +53,8 @@ src/
 
 1. Clone repository:
 ```bash
-git clone <repository-url>
-cd planbook-ai-frontend
+git clone [<repository-url>](https://github.com/PlanBookAI/PlanBookAI-FE)
+cd planbookai-fe
 ```
 
 2. Cài đặt dependencies:
