@@ -25,6 +25,15 @@ interface AuthResponse {
     truong: string;
     thongBao: string;
   }>;
+  token?: string;
+  refreshToken?: string;
+  thongTinNguoiDung?: {
+    id: string;
+    hoTen: string;
+    email: string;
+    tenVaiTro: string;
+    vaiTroId: number;
+  };
 }
 
 export class AuthService {
@@ -44,7 +53,18 @@ export class AuthService {
 
       if (response.ok && result.thanhCong) {
         // Store tokens in localStorage
-        if (result.duLieu?.accessToken) {
+        if (result.token) {
+          localStorage.setItem('access_token', result.token);
+          localStorage.setItem('refresh_token', result.refreshToken || '');
+          localStorage.setItem('user', JSON.stringify({
+            id: result.thongTinNguoiDung?.id,
+            name: result.thongTinNguoiDung?.hoTen,
+            email: result.thongTinNguoiDung?.email,
+            role: result.thongTinNguoiDung?.tenVaiTro,
+            vaiTroId: result.thongTinNguoiDung?.vaiTroId,
+          }));
+        } else if (result.duLieu?.accessToken) {
+          // Fallback for old format
           localStorage.setItem('access_token', result.duLieu.accessToken);
           localStorage.setItem('refresh_token', result.duLieu.refreshToken || '');
           localStorage.setItem('user', JSON.stringify({
