@@ -4,42 +4,64 @@ Hệ thống quản lý giáo dục thông minh, tích hợp AI để hỗ trợ
 
 ## 🚀 Tính năng chính
 
-- **Quản lý giáo án**: Tạo và quản lý giáo án với sự hỗ trợ của AI
-- **Ngân hàng câu hỏi**: Xây dựng và quản lý ngân hàng câu hỏi đa dạng
-- **Tạo đề thi**: Tự động tạo đề thi từ ngân hàng câu hỏi
-- **Quản lý người dùng**: Hệ thống phân quyền Admin/Teacher
-- **Giao diện hiện đại**: Thiết kế responsive và thân thiện người dùng
+- **Landing Page**: Giao diện giới thiệu hiện đại với Hero, Features, About, Contact sections
+- **Authentication**: Hệ thống đăng nhập/đăng ký với Turnstile CAPTCHA bảo mật
+- **Smart CAPTCHA**: Cloudflare Turnstile với session management thông minh
+- **Responsive Design**: Thiết kế mobile-first, tương thích mọi thiết bị
+- **Admin Dashboard**: Quản lý người dùng, giáo án, đề thi, câu hỏi (đang phát triển)
 
 ## 🛠️ Công nghệ sử dụng
 
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
-- **UI Components**: Shadcn/ui
-- **State Management**: Zustand
-- **Form Handling**: React Hook Form + Zod
-- **Data Fetching**: TanStack Query
-- **HTTP Client**: Axios
+- **UI Components**: Radix UI + class-variance-authority (cva)
+- **CAPTCHA**: Cloudflare Turnstile
+- **State Management**: React hooks (useState, useEffect, useCallback)
+- **Form Handling**: Native HTML forms với validation
+- **HTTP Client**: Fetch API
+- **Utilities**: clsx, twMerge
 
 ## 📁 Cấu trúc dự án
 
 ```
 src/
 ├── app/                    # Next.js App Router
-│   ├── layout.tsx         # Layout chính
-│   ├── page.tsx           # Trang chủ
+│   ├── (auth)/            # Route group cho authentication
+│   │   ├── login/         # Trang đăng nhập
+│   │   ├── register/      # Trang đăng ký
+│   │   └── layout.tsx     # Layout chung cho auth pages
+│   ├── (root)/            # Route group cho public pages
+│   │   ├── page.tsx        # Landing page
+│   │   └── layout.tsx     # Layout chung cho public pages
+│   ├── api/               # API routes
+│   │   └── verify-turnstile/ # Turnstile verification API
+│   ├── layout.tsx         # Root layout
 │   └── globals.css        # CSS toàn cục
 ├── components/             # React components
 │   ├── ui/                # UI components cơ bản
-│   ├── auth/              # Components xác thực
-│   ├── layout/            # Components layout
-│   └── common/            # Components chung
-├── services/               # API services
+│   │   ├── Button.tsx     # Button component với variants
+│   │   ├── Input.tsx      # Input component
+│   │   ├── Turnstile.tsx  # Cloudflare Turnstile widget
+│   │   └── GlobalTurnstile.tsx # Global CAPTCHA modal
+│   ├── layout/            # Layout components
+│   │   ├── Navbar.tsx     # Navigation bar
+│   │   └── Footer.tsx     # Footer component
+│   ├── sections/          # Landing page sections
+│   │   ├── HeroSection.tsx
+│   │   ├── FeaturesSection.tsx
+│   │   ├── AboutSection.tsx
+│   │   └── ContactSection.tsx
+│   └── providers/          # Context providers
+│       └── TurnstileProvider.tsx # Global Turnstile script loader
 ├── hooks/                  # Custom React hooks
-├── stores/                 # Zustand stores
-├── types/                  # TypeScript types
-├── utils/                  # Utility functions
-└── styles/                 # CSS modules (nếu cần)
+│   ├── useTurnstile.ts    # Turnstile state management
+│   └── useTurnstileVerification.ts # Turnstile verification
+├── lib/                    # Utility libraries
+│   ├── utils.ts           # Utility functions (cn, etc.)
+│   └── turnstile-session.ts # Session management
+└── types/                  # TypeScript types
+    └── index.ts           # Global type definitions
 ```
 
 ## 🚀 Khởi chạy dự án
@@ -54,46 +76,40 @@ src/
 1. Clone repository:
 
 ```bash
-git clone [<repository-url>](https://github.com/PlanBookAI/PlanBookAI-FE)
-cd planbookai-fe
+git clone https://github.com/PlanBookAI/PlanBookAI-FE
+cd PlanBookAI-FE
 ```
 
 2. Cài đặt dependencies:
 
 ```bash
 npm install
-# hoặc
-yarn install
 ```
 
 3. Tạo file môi trường:
 
 ```bash
-cp .env.example .env.local
+cp env.example .env
 ```
 
-4. Cập nhật biến môi trường trong `.env.local`:
+4. Cập nhật biến môi trường trong `.env`:
 
 ```env
+# API Configuration
 NEXT_PUBLIC_API_URL=http://localhost:3001
+
+# Cloudflare Turnstile
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=your_turnstile_site_key_here
+NEXT_PUBLIC_TURNSTILE_SECRET_KEY=your_turnstile_secret_key_here
 ```
 
 5. Khởi chạy dự án:
 
 ```bash
 npm run dev
-# hoặc
-yarn dev
 ```
 
 Dự án sẽ chạy tại [http://localhost:3000](http://localhost:3000)
-
-**Lưu ý**: Để chạy production server, bạn cần build dự án trước:
-
-```bash
-npm run build
-npm run start
-```
 
 ## 📝 Scripts có sẵn
 
@@ -107,44 +123,71 @@ npm run start
 
 ### Tailwind CSS
 
-Dự án sử dụng Tailwind CSS với cấu hình tùy chỉnh trong `tailwind.config.js`. Các component UI được xây dựng dựa trên design system của Shadcn/ui.
+Dự án sử dụng Tailwind CSS với cấu hình tùy chỉnh trong `tailwind.config.js`. Design system tuân thủ nguyên tắc:
+- **Minimalism**: Giảm thiểu, tập trung vào chức năng chính
+- **Gestalt**: Nhóm các thành phần liên quan
+- **Spacing**: Hệ thống chia bội số của 4
+- **Hierarchy**: Phân cấp rõ ràng
 
 ### TypeScript
 
-Cấu hình TypeScript được tối ưu hóa cho Next.js với strict mode và path mapping cho các import.
+Cấu hình TypeScript được tối ưu hóa cho Next.js với:
+- Strict mode
+- Path mapping cho imports
+- JSX support
+- React types
 
-### ESLint & Prettier
+### Cloudflare Turnstile
 
-- ESLint với Next.js và TypeScript rules
-- Prettier với Tailwind CSS plugin
+Hệ thống CAPTCHA thông minh với:
+- **Smart Session**: Verify một lần, sử dụng nhiều lần
+- **Force Verify**: Bắt buộc verify cho login/register
+- **Global Modal**: Hiển thị khi cần thiết
+- **Server-side Verification**: API route `/api/verify-turnstile`
+
+## 🔐 Xác thực & Bảo mật
+
+### Turnstile CAPTCHA
+- **Cloudflare Turnstile**: Bảo vệ khỏi bot và tấn công tự động
+- **Session Management**: Lưu trữ verification status trong sessionStorage
+- **Smart Verification**: Chỉ verify khi cần thiết
+- **API Integration**: Server-side verification với Cloudflare
+
+### Authentication Flow
+1. **Landing Page**: Global Turnstile modal nếu chưa verify
+2. **Login/Register**: Force verify Turnstile trước khi submit
+3. **Session**: Lưu verification status trong 30 phút
+4. **Security**: Bảo vệ khỏi spam và tấn công tự động
 
 ## 📱 Responsive Design
 
-Dự án được thiết kế theo nguyên tắc mobile-first, hỗ trợ đầy đủ các thiết bị từ mobile đến desktop.
+Dự án được thiết kế theo nguyên tắc mobile-first:
+- **Breakpoints**: sm, md, lg, xl
+- **Flexible Layout**: Grid và Flexbox
+- **Touch-friendly**: Buttons và inputs tối ưu cho mobile
+- **Performance**: Lazy loading và optimization
 
-## 🔐 Xác thực
+## 🎨 Design System
 
-Hệ thống xác thực sử dụng JWT tokens với các tính năng:
+### Components
+- **Button**: Variants (primary, secondary, white, ghost)
+- **Input**: Consistent styling với validation states
+- **Layout**: Navbar, Footer, AuthLayout
+- **Sections**: Hero, Features, About, Contact
 
-- Đăng nhập/Đăng ký
-- Bảo vệ route
-- Quản lý vai trò người dùng
-- Tự động đăng xuất khi token hết hạn
-
-## 🧪 Testing
-
-- Jest + React Testing Library cho unit tests
-- Playwright cho E2E tests
-- Testing utilities và mocks
+### Colors
+- **Primary**: Blue (#3B82F6)
+- **Secondary**: Indigo (#6366F1)
+- **Success**: Green (#10B981)
+- **Background**: Gradient blue to indigo
 
 ## 🚀 Deployment
 
-Dự án được cấu hình để deploy trên Vercel với:
-
-- Tối ưu hóa build
-- CDN cho tài sản tĩnh
-- Biến môi trường
-- Headers bảo mật
+Dự án được cấu hình để deploy trên Vercel:
+- **Build Optimization**: Next.js 15 optimizations
+- **Static Assets**: CDN cho images và fonts
+- **Environment Variables**: Secure configuration
+- **Performance**: Core Web Vitals optimization
 
 ## 📄 License
 
@@ -152,4 +195,8 @@ Dự án này được phân phối dưới giấy phép MIT. Xem `LICENSE` đ�
 
 ## 🙏 Cảm ơn
 
-Cảm ơn tất cả contributors đã đóng góp vào dự án này!
+Cảm ơn tất cả contributors đã đóng góp vào dự án PlanBookAI!
+
+---
+
+**PlanBookAI Team** - Hệ thống quản lý giáo dục thông minh với AI
