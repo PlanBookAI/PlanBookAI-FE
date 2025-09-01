@@ -16,10 +16,10 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [formData, setFormData] = useState({
-    name: '',
+    hoTen: '',
     email: '',
-    password: '',
-    confirmPassword: '',
+    matKhau: '',
+    xacNhanMatKhau: '',
   });
 
   // Force verify for register (critical point)
@@ -40,7 +40,7 @@ export default function RegisterPage() {
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.matKhau !== formData.xacNhanMatKhau) {
       setError('Mật khẩu xác nhận không khớp');
       return;
     }
@@ -50,20 +50,16 @@ export default function RegisterPage() {
     setSuccess('');
 
     try {
-      const result = await AuthService.register({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
+      const result = await AuthService.register(formData);
       
-      if (result.success) {
-        setSuccess(result.message || 'Đăng ký thành công!');
+      if (result.thanhCong) {
+        setSuccess(result.thongBao || 'Đăng ký thành công!');
         // Redirect to login after 2 seconds
         setTimeout(() => {
           router.push('/login');
         }, 2000);
       } else {
-        setError(result.message || 'Đăng ký thất bại');
+        setError(result.thongBao || 'Đăng ký thất bại');
       }
     } catch (err) {
       setError('Đăng ký thất bại. Vui lòng thử lại sau.');
@@ -104,17 +100,17 @@ export default function RegisterPage() {
 
       <div className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-blue-100">
+          <label htmlFor="hoTen" className="block text-sm font-medium text-blue-100">
             Họ và tên
           </label>
           <div className="mt-1">
             <Input
-              id="name"
+              id="hoTen"
               type="text"
               autoComplete="name"
               required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              value={formData.hoTen}
+              onChange={(e) => setFormData({ ...formData, hoTen: e.target.value })}
               className="w-full bg-white/5 border-white/10 text-white placeholder-blue-200"
               placeholder="Nguyễn Văn A"
             />
@@ -140,17 +136,17 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-blue-100">
+          <label htmlFor="matKhau" className="block text-sm font-medium text-blue-100">
             Mật khẩu
           </label>
           <div className="mt-1">
             <Input
-              id="password"
+              id="matKhau"
               type="password"
               autoComplete="new-password"
               required
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              value={formData.matKhau}
+              onChange={(e) => setFormData({ ...formData, matKhau: e.target.value })}
               className="w-full bg-white/5 border-white/10 text-white placeholder-blue-200"
               placeholder="••••••••"
             />
@@ -158,17 +154,17 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-blue-100">
+          <label htmlFor="xacNhanMatKhau" className="block text-sm font-medium text-blue-100">
             Xác nhận mật khẩu
           </label>
           <div className="mt-1">
             <Input
-              id="confirmPassword"
+              id="xacNhanMatKhau"
               type="password"
               autoComplete="new-password"
               required
-              value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              value={formData.xacNhanMatKhau}
+              onChange={(e) => setFormData({ ...formData, xacNhanMatKhau: e.target.value })}
               className="w-full bg-white/5 border-white/10 text-white placeholder-blue-200"
               placeholder="••••••••"
             />

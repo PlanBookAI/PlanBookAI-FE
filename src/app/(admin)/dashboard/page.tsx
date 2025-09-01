@@ -8,6 +8,7 @@ import { AuthService } from '@/services/auth';
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     // Check if user is authenticated
@@ -21,9 +22,18 @@ export default function DashboardPage() {
     setUser(userInfo);
   }, [router]);
 
-  const handleLogout = () => {
-    AuthService.logout();
-    router.push('/');
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await AuthService.logout();
+      router.push('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still redirect even if logout fails
+      router.push('/');
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   if (!user) {
@@ -47,8 +57,12 @@ export default function DashboardPage() {
               <h1 className="text-3xl font-bold text-gray-900">PlanBook AI Dashboard</h1>
               <p className="text-gray-600">Chào mừng, {user.name}!</p>
             </div>
-            <Button onClick={handleLogout} variant="ghost">
-              Đăng xuất
+            <Button 
+              onClick={handleLogout} 
+              variant="ghost"
+              disabled={isLoggingOut}
+            >
+              {isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
             </Button>
           </div>
         </div>

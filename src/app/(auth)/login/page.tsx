@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
+    matKhau: '',
   });
 
   // Force verify for login (critical point)
@@ -43,11 +43,11 @@ export default function LoginPage() {
     try {
       const result = await AuthService.login(formData);
       
-      if (result.success) {
+      if (result.thanhCong) {
         // Redirect to dashboard on successful login
         router.push('/dashboard');
       } else {
-        setError(result.message || 'Đăng nhập thất bại');
+        setError(result.thongBao || 'Đăng nhập thất bại');
       }
     } catch (err) {
       setError('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
@@ -100,17 +100,17 @@ export default function LoginPage() {
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-blue-100">
+          <label htmlFor="matKhau" className="block text-sm font-medium text-blue-100">
             Mật khẩu
           </label>
           <div className="mt-1">
             <Input
-              id="password"
+              id="matKhau"
               type="password"
               autoComplete="current-password"
               required
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              value={formData.matKhau}
+              onChange={(e) => setFormData({ ...formData, matKhau: e.target.value })}
               className="w-full bg-white/5 border-white/10 text-white placeholder-blue-200"
               placeholder="••••••••"
             />
