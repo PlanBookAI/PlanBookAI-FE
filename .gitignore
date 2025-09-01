@@ -119,3 +119,10 @@ TASKS/
 TASK/
 tasks/
 task/
+
+# Symlinked backend and configuration
+backend
+.cursor/
+public
+# Text files
+*.txt

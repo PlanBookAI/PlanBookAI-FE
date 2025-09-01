@@ -1,13 +1,13 @@
 # PlanBook AI - Frontend
 
-Hệ thống quản lý giáo dục thông minh, tích hợp AI để hỗ trợ giáo viên và quản lý trường học một cách hiệu quả.
+Hệ thống quản lý giáo dục thông minh, tích hợp AI để hỗ trợ giáo viên một cách hiệu quả.
 
 ## 🚀 Tính năng chính
 
 - **Quản lý giáo án**: Tạo và quản lý giáo án với sự hỗ trợ của AI
 - **Ngân hàng câu hỏi**: Xây dựng và quản lý ngân hàng câu hỏi đa dạng
 - **Tạo đề thi**: Tự động tạo đề thi từ ngân hàng câu hỏi
-- **Quản lý người dùng**: Hệ thống phân quyền Admin/Teacher/Student
+- **Quản lý người dùng**: Hệ thống phân quyền Admin/Teacher
 - **Giao diện hiện đại**: Thiết kế responsive và thân thiện người dùng
 
 ## 🛠️ Công nghệ sử dụng
@@ -52,12 +52,14 @@ src/
 ### Cài đặt
 
 1. Clone repository:
+
 ```bash
 git clone [<repository-url>](https://github.com/PlanBookAI/PlanBookAI-FE)
 cd planbookai-fe
 ```
 
 2. Cài đặt dependencies:
+
 ```bash
 npm install
 # hoặc
@@ -65,16 +67,19 @@ yarn install
 ```
 
 3. Tạo file môi trường:
+
 ```bash
 cp .env.example .env.local
 ```
 
 4. Cập nhật biến môi trường trong `.env.local`:
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
 5. Khởi chạy dự án:
+
 ```bash
 npm run dev
 # hoặc
@@ -84,6 +89,7 @@ yarn dev
 Dự án sẽ chạy tại [http://localhost:3000](http://localhost:3000)
 
 **Lưu ý**: Để chạy production server, bạn cần build dự án trước:
+
 ```bash
 npm run build
 npm run start
@@ -119,6 +125,7 @@ Dự án được thiết kế theo nguyên tắc mobile-first, hỗ trợ đầ
 ## 🔐 Xác thực
 
 Hệ thống xác thực sử dụng JWT tokens với các tính năng:
+
 - Đăng nhập/Đăng ký
 - Bảo vệ route
 - Quản lý vai trò người dùng
@@ -133,6 +140,7 @@ Hệ thống xác thực sử dụng JWT tokens với các tính năng:
 ## 🚀 Deployment
 
 Dự án được cấu hình để deploy trên Vercel với:
+
 - Tối ưu hóa build
 - CDN cho tài sản tĩnh
 - Biến môi trường

@@ -9,11 +9,21 @@ export const metadata: Metadata = {
   description: 'Nền tảng quản lý giáo dục tích hợp AI, hỗ trợ giáo viên và quản lý trường học',
   keywords: 'giáo dục, AI, quản lý trường học, giáo án, đề thi',
   authors: [{ name: 'PlanBook AI Team' }],
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.png', type: 'image/png' },
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  themeColor: '#3B82F6',
 };
 
 export default function RootLayout({
@@ -23,8 +33,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi">
+      <head>
+        {/* Prevent Vite-related requests */}
+        <meta name="vite-plugin-pwa:disable" content="true" />
+      </head>
       <body className={inter.className}>
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background text-text-primary">
           {children}
         </div>
       </body>
