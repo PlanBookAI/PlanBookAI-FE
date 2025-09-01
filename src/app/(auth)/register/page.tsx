@@ -1,16 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Turnstile } from '@/components/ui/Turnstile';
 import { useTurnstile } from '@/hooks/useTurnstile';
+import { AuthService } from '@/services/auth';
 import { cn } from '@/lib/utils';
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -20,6 +24,13 @@ export default function RegisterPage() {
 
   // Force verify for register (critical point)
   const { isVerified, isLoading: isTurnstileLoading, error: turnstileError, verifyToken, reset } = useTurnstile(true);
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    if (AuthService.isAuthenticated()) {
+      router.push('/dashboard');
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,11 +47,24 @@ export default function RegisterPage() {
 
     setIsLoading(true);
     setError('');
+    setSuccess('');
 
     try {
-      // API call here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
-      console.log('Register:', formData);
+      const result = await AuthService.register({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
+      
+      if (result.success) {
+        setSuccess(result.message || 'Đăng ký thành công!');
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          router.push('/login');
+        }, 2000);
+      } else {
+        setError(result.message || 'Đăng ký thất bại');
+      }
     } catch (err) {
       setError('Đăng ký thất bại. Vui lòng thử lại sau.');
     } finally {
@@ -69,6 +93,12 @@ export default function RegisterPage() {
       {error && (
         <div className="rounded-lg bg-red-500/10 p-4 text-sm text-red-200">
           {error}
+        </div>
+      )}
+
+      {success && (
+        <div className="rounded-lg bg-green-500/10 p-4 text-sm text-green-200">
+          {success}
         </div>
       )}
 
