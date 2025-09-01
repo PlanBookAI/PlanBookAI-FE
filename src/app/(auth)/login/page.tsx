@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Turnstile } from '@/components/ui/Turnstile';
 import { useTurnstile } from '@/hooks/useTurnstile';
+import { AuthService } from '@/services/auth';
 import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -18,6 +21,13 @@ export default function LoginPage() {
 
   // Force verify for login (critical point)
   const { isVerified, isLoading: isTurnstileLoading, error: turnstileError, verifyToken, reset } = useTurnstile(true);
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    if (AuthService.isAuthenticated()) {
+      router.push('/dashboard');
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,9 +41,14 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // API call here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
-      console.log('Login:', formData);
+      const result = await AuthService.login(formData);
+      
+      if (result.success) {
+        // Redirect to dashboard on successful login
+        router.push('/dashboard');
+      } else {
+        setError(result.message || 'Đăng nhập thất bại');
+      }
     } catch (err) {
       setError('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
     } finally {
