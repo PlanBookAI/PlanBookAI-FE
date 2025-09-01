@@ -9,17 +9,39 @@ export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is authenticated
-    if (!AuthService.isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
+    const checkAuth = () => {
+      console.log('Checking authentication...');
+      console.log('Access token:', AuthService.getAccessToken());
+      console.log('Is authenticated:', AuthService.isAuthenticated());
+      
+      if (!AuthService.isAuthenticated()) {
+        console.log('Not authenticated, redirecting to login');
+        router.push('/login');
+        return;
+      }
 
-    // Get user info
-    const userInfo = AuthService.getUser();
-    setUser(userInfo);
+      // Get user info
+      const userInfo = AuthService.getUser();
+      console.log('User info:', userInfo);
+      
+      if (userInfo) {
+        setUser(userInfo);
+      } else {
+        console.log('No user info found, redirecting to login');
+        router.push('/login');
+        return;
+      }
+      
+      setIsLoading(false);
+    };
+
+    // Add a small delay to ensure token is saved
+    const timer = setTimeout(checkAuth, 100);
+    
+    return () => clearTimeout(timer);
   }, [router]);
 
   const handleLogout = async () => {
@@ -36,12 +58,29 @@ export default function DashboardPage() {
     }
   };
 
-  if (!user) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Đang tải...</p>
+          <p className="mt-4 text-gray-600">Đang kiểm tra xác thực...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Không tìm thấy thông tin người dùng</p>
+          <Button 
+            onClick={() => router.push('/login')} 
+            className="mt-4"
+          >
+            Về trang đăng nhập
+          </Button>
         </div>
       </div>
     );
