@@ -89,12 +89,21 @@ export class AuthService {
 
   static async register(data: RegisterData): Promise<AuthResponse> {
     try {
+      // Map form data (camelCase) -> API payload (PascalCase) with required VaiTroId
+      const payload = {
+        Email: data.email,
+        MatKhau: data.matKhau,
+        XacNhanMatKhau: data.xacNhanMatKhau,
+        HoTen: data.hoTen,
+        VaiTroId: 4,
+      };
+
       const response = await fetch(`${this.baseUrl}/api/v1/xac-thuc/dang-ky`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       const result: AuthResponse = await response.json();
