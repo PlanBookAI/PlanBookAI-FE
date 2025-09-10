@@ -8,33 +8,51 @@ import { AuthService } from '@/services/auth';
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = () => {
-      console.log('Checking authentication...');
-      console.log('Access token:', AuthService.getAccessToken());
-      console.log('Is authenticated:', AuthService.isAuthenticated());
-      
+    const checkAuth = async () => {
+      // Tránh log token ra console để bảo mật
       if (!AuthService.isAuthenticated()) {
-        console.log('Not authenticated, redirecting to login');
         router.push('/login');
         return;
       }
 
       // Get user info
       const userInfo = AuthService.getUser();
-      console.log('User info:', userInfo);
-      
-      if (userInfo) {
-        setUser(userInfo);
-      } else {
-        console.log('No user info found, redirecting to login');
+      if (!userInfo) {
         router.push('/login');
         return;
       }
-      
+      // Nếu thiếu tên, gọi hồ sơ để bổ sung
+      if ((!userInfo.name && !userInfo.hoTen) && userInfo.id) {
+        try {
+          const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+          const res = await fetch(`${baseUrl}/api/v1/nguoi-dung/ho-so/${userInfo.id}` , {
+            headers: {
+              'Content-Type': 'application/json',
+              ...AuthService.getAuthHeaders(),
+            },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const profileName = data?.duLieu?.hoTen;
+            if (profileName) {
+              const updated = { ...userInfo, hoTen: profileName, name: userInfo.name || profileName };
+              localStorage.setItem('user', JSON.stringify(updated));
+              setUser(updated);
+            } else {
+              setUser(userInfo);
+            }
+          } else {
+            setUser(userInfo);
+          }
+        } catch (_err) {
+          setUser(userInfo);
+        }
+      } else {
+        setUser(userInfo);
+      }
       setIsLoading(false);
     };
 
@@ -44,19 +62,7 @@ export default function DashboardPage() {
     return () => clearTimeout(timer);
   }, [router]);
 
-  const handleLogout = async () => {
-    setIsLoggingOut(true);
-    try {
-      await AuthService.logout();
-      router.push('/');
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Still redirect even if logout fails
-      router.push('/');
-    } finally {
-      setIsLoggingOut(false);
-    }
-  };
+  // Logout được xử lý bởi Navbar chung, không cần trong trang này
 
   if (isLoading) {
     return (
@@ -86,51 +92,73 @@ export default function DashboardPage() {
     );
   }
 
+  const displayName = user?.name || user?.hoTen || (user?.email ? user.email.split('@')[0] : 'bạn');
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex justify-between items-center py-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">PlanBook AI Dashboard</h1>
-              <p className="text-gray-600">Chào mừng, {user.name}!</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-blue-700">PlanBook AI Dashboard</h1>
+              <p className="text-gray-600">Chào mừng, {displayName}!</p>
             </div>
-            <Button 
-              onClick={handleLogout} 
-              variant="ghost"
-              disabled={isLoggingOut}
-            >
-              {isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
-            </Button>
+            {/* Nút đăng xuất đã được chuyển sang Navbar dùng chung */}
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="border-4 border-dashed border-gray-200 rounded-lg h-96 flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Dashboard đang phát triển
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Đây là trang dashboard sau khi đăng nhập thành công.
-              </p>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  <strong>Thông tin user:</strong><br />
-                  ID: {user.id}<br />
-                  Tên: {user.name}<br />
-                  Email: {user.email}<br />
-                  Vai trò: {user.role}
-                </p>
-              </div>
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-blue-600 to-blue-700 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+          <div className="flex flex-col gap-4 sm:gap-6">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-semibold">Tổng quan lớp học và tài nguyên</h2>
+              <p className="mt-2 text-blue-100">Quản lý giáo án, đề thi và ngân hàng câu hỏi một cách tập trung.</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button onClick={() => router.push('/lesson-plans')}>
+                Xem giáo án
+              </Button>
+              <Button onClick={() => router.push('/exams')} variant="ghost">
+                Đề thi
+              </Button>
             </div>
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* KPI Cards */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <p className="text-sm text-gray-500">Giáo án</p>
+            <p className="mt-2 text-2xl font-semibold text-gray-900">12</p>
+            <p className="mt-1 text-xs text-gray-500">Cập nhật gần đây</p>
+          </div>
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <p className="text-sm text-gray-500">Đề thi</p>
+            <p className="mt-2 text-2xl font-semibold text-gray-900">5</p>
+            <p className="mt-1 text-xs text-gray-500">Sẵn sàng</p>
+          </div>
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <p className="text-sm text-gray-500">Học sinh</p>
+            <p className="mt-2 text-2xl font-semibold text-gray-900">128</p>
+            <p className="mt-1 text-xs text-gray-500">Đã tham gia</p>
+          </div>
+        </div>
+      </section>
+
+      {/* User Info Brief */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="rounded-lg bg-blue-50 border border-blue-100 p-4 sm:p-5">
+          <p className="text-sm text-blue-900">
+            <strong>Thông tin tài khoản</strong><br />
+            ID: {user.id} · Email: {user.email} · Vai trò: {user.role}
+          </p>
+        </div>
+      </section>
     </div>
   );
 }
