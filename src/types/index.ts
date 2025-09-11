@@ -41,3 +41,6 @@ export interface PaginatedResponse<T> {
   limit: number;
   totalPages: number;
 }
+
+// Re-export lesson types
+export * from './lesson';
