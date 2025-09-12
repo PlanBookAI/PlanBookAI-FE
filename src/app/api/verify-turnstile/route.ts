@@ -22,11 +22,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            'Turnstile secret key is missing. Set TURNSTILE_SECRET_KEY or NEXT_PUBLIC_TURNSTILE_SECRET_KEY.',
+            'Turnstile secret key is missing. Set TURNSTILE_SECRET_KEY.',
         },
         { status: 500 }
       );
     }
+
+    // If we have a secret key, use it regardless of disable flag (production mode)
+    // Only bypass when no secret key is available AND disable flag is set
 
     // Verify token with Cloudflare
     const formData = new FormData();
