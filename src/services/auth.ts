@@ -1,6 +1,7 @@
 interface LoginData {
   email: string;
   matKhau: string;
+  rememberMe?: boolean;
 }
 
 interface RegisterData {
@@ -16,6 +17,7 @@ interface AuthResponse {
   duLieu?: {
     accessToken?: string;
     refreshToken?: string;
+    token?: string;
     userId?: string;
     email?: string;
     hoTen?: string;
@@ -41,12 +43,19 @@ export class AuthService {
 
   static async login(data: LoginData): Promise<AuthResponse> {
     try {
+      // Map form data (camelCase) -> API payload (PascalCase)
+      const payload = {
+        Email: data.email,
+        MatKhau: data.matKhau,
+        // Note: rememberMe is client-side only, not sent to API
+      };
+
       const response = await fetch(`${this.baseUrl}/api/v1/xac-thuc/dang-nhap`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       const result: AuthResponse = await response.json();
@@ -54,8 +63,15 @@ export class AuthService {
       if (response.ok && result.thanhCong) {
         // Store tokens in localStorage
         if (result.token) {
+          // Calculate session expiry based on remember me
+          const sessionDuration = data.rememberMe ? 
+            5 * 24 * 60 * 60 * 1000 : // 5 days
+            5 * 60 * 1000; // 5 minutes
+          const sessionExpiry = Date.now() + sessionDuration;
+
           localStorage.setItem('access_token', result.token);
           localStorage.setItem('refresh_token', result.refreshToken || '');
+          localStorage.setItem('session_expiry', sessionExpiry.toString());
           localStorage.setItem('user', JSON.stringify({
             id: result.thongTinNguoiDung?.id,
             name: result.thongTinNguoiDung?.hoTen,
@@ -63,10 +79,33 @@ export class AuthService {
             role: result.thongTinNguoiDung?.tenVaiTro,
             vaiTroId: result.thongTinNguoiDung?.vaiTroId,
           }));
+        } else if (result.duLieu?.token) {
+          // Handle result.duLieu.token format
+          const sessionDuration = data.rememberMe ? 
+            5 * 24 * 60 * 60 * 1000 : // 5 days
+            5 * 60 * 1000; // 5 minutes
+          const sessionExpiry = Date.now() + sessionDuration;
+
+          localStorage.setItem('access_token', result.duLieu.token);
+          localStorage.setItem('refresh_token', result.duLieu.refreshToken || '');
+          localStorage.setItem('session_expiry', sessionExpiry.toString());
+          localStorage.setItem('user', JSON.stringify({
+            id: result.thongTinNguoiDung?.id || result.duLieu.userId,
+            name: result.thongTinNguoiDung?.hoTen || result.duLieu.hoTen,
+            email: result.thongTinNguoiDung?.email || result.duLieu.email,
+            role: result.thongTinNguoiDung?.tenVaiTro || result.duLieu.vaiTro,
+            vaiTroId: result.thongTinNguoiDung?.vaiTroId,
+          }));
         } else if (result.duLieu?.accessToken) {
-          // Fallback for old format
+          // Handle result.duLieu.accessToken format
+          const sessionDuration = data.rememberMe ? 
+            5 * 24 * 60 * 60 * 1000 : // 5 days
+            5 * 60 * 1000; // 5 minutes
+          const sessionExpiry = Date.now() + sessionDuration;
+
           localStorage.setItem('access_token', result.duLieu.accessToken);
           localStorage.setItem('refresh_token', result.duLieu.refreshToken || '');
+          localStorage.setItem('session_expiry', sessionExpiry.toString());
           localStorage.setItem('user', JSON.stringify({
             id: result.duLieu.userId,
             name: result.duLieu.hoTen,
@@ -74,6 +113,10 @@ export class AuthService {
             role: result.duLieu.vaiTro,
           }));
         }
+        
+        // Dispatch custom event to notify components of auth state change
+        window.dispatchEvent(new CustomEvent('auth:changed'));
+        
         return result;
       } else {
         return result;
@@ -197,11 +240,31 @@ export class AuthService {
   static clearTokens(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('session_expiry');
     localStorage.removeItem('user');
+    
+    // Dispatch custom event to notify components of auth state change
+    window.dispatchEvent(new CustomEvent('auth:changed'));
   }
 
   static isAuthenticated(): boolean {
-    return !!localStorage.getItem('access_token');
+    const token = localStorage.getItem('access_token');
+    const sessionExpiry = localStorage.getItem('session_expiry');
+    
+    if (!token || !sessionExpiry) {
+      return false;
+    }
+    
+    const expiryTime = parseInt(sessionExpiry, 10);
+    const currentTime = Date.now();
+    
+    if (currentTime >= expiryTime) {
+      // Session has expired, clear tokens
+      this.clearTokens();
+      return false;
+    }
+    
+    return true;
   }
 
   static getAccessToken(): string | null {

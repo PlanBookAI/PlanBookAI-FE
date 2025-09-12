@@ -2,12 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { AuthService } from '@/services/auth';
 import { cn } from '@/lib/utils';
 
 export function Navbar() {
+  const router = useRouter();
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +23,100 @@ export function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Check authentication state with event-driven updates
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      const authStatus = AuthService.isAuthenticated();
+      setIsAuthenticated(authStatus);
+      
+      if (authStatus) {
+        const userData = AuthService.getUser();
+        setUser(userData);
+      } else {
+        setUser(null);
+      }
+    };
+
+    // Initial check
+    checkAuthStatus();
+    
+    // Listen for localStorage changes (for cross-tab auth updates)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (['access_token', 'user', 'session_expiry'].includes(e.key || '')) {
+        checkAuthStatus();
+      }
+    };
+    
+    // Listen for custom auth events (for same-tab auth updates)
+    const handleAuthChange = () => {
+      checkAuthStatus();
+    };
+    
+    // Set up session expiry timeout
+    const setupSessionTimeout = () => {
+      const sessionExpiry = localStorage.getItem('session_expiry');
+      if (sessionExpiry) {
+        const expiryTime = parseInt(sessionExpiry, 10);
+        const currentTime = Date.now();
+        const timeUntilExpiry = expiryTime - currentTime;
+        
+        if (timeUntilExpiry > 0) {
+          return setTimeout(() => {
+            checkAuthStatus(); // This will clear expired session
+          }, timeUntilExpiry);
+        }
+      }
+      return null;
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('auth:changed', handleAuthChange);
+    const sessionTimeout = setupSessionTimeout();
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('auth:changed', handleAuthChange);
+      if (sessionTimeout) {
+        clearTimeout(sessionTimeout);
+      }
+    };
+  }, []);
+  
+  // Re-check auth status on route changes
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      const authStatus = AuthService.isAuthenticated();
+      setIsAuthenticated(authStatus);
+      
+      if (authStatus) {
+        const userData = AuthService.getUser();
+        setUser(userData);
+      } else {
+        setUser(null);
+      }
+    };
+    
+    checkAuthStatus();
+  }, [pathname]);
+
+  const handleLogout = async () => {
+    try {
+      await AuthService.logout();
+      setIsAuthenticated(false);
+      setUser(null);
+      setIsUserMenuOpen(false);
+      router.push('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force logout even if API call fails
+      AuthService.clearTokens();
+      setIsAuthenticated(false);
+      setUser(null);
+      setIsUserMenuOpen(false);
+      router.push('/');
+    }
+  };
 
   return (
     <nav
@@ -67,24 +168,76 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Auth Buttons */}
+          {/* Auth Buttons / User Menu */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button
-              variant={isScrolled ? "ghost" : "ghost"}
-              className={cn(
-                "transition-colors duration-300",
-                isScrolled ? "text-gray-700" : "text-white hover:bg-white/10"
-              )}
-              asChild
-            >
-              <Link href="/login">Đăng nhập</Link>
-            </Button>
-            <Button
-              variant={isScrolled ? "primary" : "white"}
-              asChild
-            >
-              <Link href="/register">Dùng thử miễn phí</Link>
-            </Button>
+            {isAuthenticated && user ? (
+              /* User Menu */
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className={cn(
+                    "transition-colors duration-300 flex items-center space-x-2",
+                    isScrolled ? "text-gray-700 hover:bg-gray-100" : "text-white hover:bg-white/10"
+                  )}
+                >
+                  <span>Xin chào, {user.name || user.email}</span>
+                  <svg 
+                    className="w-4 h-4" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M19 9l-7 7-7-7" 
+                    />
+                  </svg>
+                </Button>
+                
+                {/* Dropdown Menu */}
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <Link
+                      href="/dashboard"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <hr className="my-1 border-gray-200" />
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Login/Register Buttons */
+              <>
+                <Button
+                  variant={isScrolled ? "ghost" : "ghost"}
+                  className={cn(
+                    "transition-colors duration-300",
+                    isScrolled ? "text-gray-700" : "text-white hover:bg-white/10"
+                  )}
+                  asChild
+                >
+                  <Link href="/login">Đăng nhập</Link>
+                </Button>
+                <Button
+                  variant={isScrolled ? "primary" : "white"}
+                  asChild
+                >
+                  <Link href="/register">Dùng thử miễn phí</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -162,23 +315,73 @@ export function Navbar() {
               Liên hệ
             </Link>
             <div className="pt-4 space-y-2">
-              <Button
-                variant={isScrolled ? "ghost" : "ghost"}
-                className={cn(
-                  "w-full transition-colors duration-300",
-                  isScrolled ? "text-gray-700" : "text-white hover:bg-white/10"
-                )}
-                asChild
-              >
-                <Link href="/login">Đăng nhập</Link>
-              </Button>
-              <Button
-                variant={isScrolled ? "primary" : "white"}
-                className="w-full"
-                asChild
-              >
-                <Link href="/register">Dùng thử miễn phí</Link>
-              </Button>
+              {isAuthenticated && user ? (
+                /* Mobile User Menu */
+                <>
+                  <div className="text-sm text-blue-100 mb-2">
+                    Xin chào, {user.name || user.email}
+                  </div>
+                  <Button
+                    variant={isScrolled ? "ghost" : "ghost"}
+                    className={cn(
+                      "w-full transition-colors duration-300",
+                      isScrolled ? "text-gray-700" : "text-white hover:bg-white/10"
+                    )}
+                    asChild
+                  >
+                    <Link 
+                      href="/dashboard"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                  </Button>
+                  <Button
+                    variant={isScrolled ? "ghost" : "ghost"}
+                    className={cn(
+                      "w-full transition-colors duration-300",
+                      isScrolled ? "text-gray-700" : "text-white hover:bg-white/10"
+                    )}
+                    onClick={() => {
+                      handleLogout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    Đăng xuất
+                  </Button>
+                </>
+              ) : (
+                /* Mobile Login/Register Buttons */
+                <>
+                  <Button
+                    variant={isScrolled ? "ghost" : "ghost"}
+                    className={cn(
+                      "w-full transition-colors duration-300",
+                      isScrolled ? "text-gray-700" : "text-white hover:bg-white/10"
+                    )}
+                    asChild
+                  >
+                    <Link 
+                      href="/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Đăng nhập
+                    </Link>
+                  </Button>
+                  <Button
+                    variant={isScrolled ? "primary" : "white"}
+                    className="w-full"
+                    asChild
+                  >
+                    <Link 
+                      href="/register"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Dùng thử miễn phí
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
