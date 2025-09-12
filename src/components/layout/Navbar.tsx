@@ -283,24 +283,24 @@ export function Navbar() {
             isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           )}
         >
-          <div className="py-4 space-y-4 bg-white/95 backdrop-blur-md shadow-lg border-t border-gray-200 mx-4 rounded-lg mt-2">
+          <div className="py-4 space-y-4 bg-gradient-to-b from-white/90 via-white/80 to-white/70 backdrop-blur-lg shadow-xl border border-white/20 mx-4 rounded-xl mt-2">
             <Link
               href="#features"
-              className="block px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-300"
+              className="block px-4 py-2 text-gray-800 hover:text-blue-600 hover:bg-white/50 rounded-lg transition-all duration-300"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Tính năng
             </Link>
             <Link
               href="#about"
-              className="block px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-300"
+              className="block px-4 py-2 text-gray-800 hover:text-blue-600 hover:bg-white/50 rounded-lg transition-all duration-300"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Giới thiệu
             </Link>
             <Link
               href="#contact"
-              className="block px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-300"
+              className="block px-4 py-2 text-gray-800 hover:text-blue-600 hover:bg-white/50 rounded-lg transition-all duration-300"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Liên hệ
@@ -309,18 +309,18 @@ export function Navbar() {
               {isAuthenticated && user ? (
                 /* Mobile User Menu */
                 <>
-                  <div className="text-sm text-gray-600 mb-2 px-4">
+                  <div className="text-sm text-gray-700 mb-2 px-4 font-medium">
                     Xin chào, {user.name || user.email}
                   </div>
                   <Link
                     href="/dashboard"
-                    className="block px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-300"
+                    className="block px-4 py-2 text-gray-800 hover:text-blue-600 hover:bg-white/50 rounded-lg transition-all duration-300"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Dashboard
                   </Link>
                   <button
-                    className="w-full text-left px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-300"
+                    className="w-full text-left px-4 py-2 text-gray-800 hover:text-red-600 hover:bg-white/50 rounded-lg transition-all duration-300"
                     onClick={() => {
                       handleLogout();
                       setIsMobileMenuOpen(false);
@@ -334,14 +334,14 @@ export function Navbar() {
                 <>
                   <Link
                     href="/login"
-                    className="block px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-300 text-center"
+                    className="block px-4 py-2 text-gray-800 hover:text-blue-600 hover:bg-white/50 rounded-lg transition-all duration-300 text-center font-medium"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Đăng nhập
                   </Link>
                   <Link
                     href="/register"
-                    className="block px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors duration-300 text-center"
+                    className="block px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-300 text-center font-medium shadow-lg"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Dùng thử miễn phí
