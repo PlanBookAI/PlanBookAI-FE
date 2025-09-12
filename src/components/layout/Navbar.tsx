@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export function Navbar() {
@@ -88,9 +88,11 @@ export function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2"
+            className="md:hidden"
             aria-label="Toggle menu"
           >
             <svg
@@ -118,7 +120,7 @@ export function Navbar() {
                 />
               )}
             </svg>
-          </button>
+          </Button>
         </div>
 
         {/* Mobile Menu */}
