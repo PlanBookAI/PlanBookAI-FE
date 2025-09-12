@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { WebSocketProvider } from '@/providers/WebSocketProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -39,7 +40,9 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <div className="min-h-screen bg-background text-text-primary">
-          {children}
+          <WebSocketProvider>
+            {children}
+          </WebSocketProvider>
         </div>
       </body>
     </html>

@@ -4,10 +4,19 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+import { AuthState } from '@/types';
 
 export function Navbar() {
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [auth, setAuth] = useState<AuthState>({
+    user: null,
+    token: null,
+    isAuthenticated: false,
+    isLoading: true
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,6 +24,38 @@ export function Navbar() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Check authentication status
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setAuth({
+          user,
+          token,
+          isAuthenticated: true,
+          isLoading: false
+        });
+      } catch (e) {
+        setAuth({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          isLoading: false
+        });
+      }
+    } else {
+      setAuth({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false
+      });
+    }
   }, []);
 
   return (
@@ -38,15 +79,17 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link 
-              href="#features" 
-              className={cn(
-                'transition-colors duration-300',
-                isScrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/80 hover:text-white'
-              )}
-            >
-              Tính năng
-            </Link>
+            {!auth.isAuthenticated ? (
+              <>
+                <Link 
+                  href="#features" 
+                  className={cn(
+                    'transition-colors duration-300',
+                    isScrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/80 hover:text-white'
+                  )}
+                >
+                  Tính năng
+                </Link>
             <Link 
               href="#about" 
               className={cn(
@@ -65,26 +108,117 @@ export function Navbar() {
             >
               Liên hệ
             </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/dashboard"
+                  className={cn(
+                    'transition-colors duration-300',
+                    isScrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/80 hover:text-white'
+                  )}
+                >
+                  Bảng điều khiển
+                </Link>
+                <Link
+                  href="/lesson-plans"
+                  className={cn(
+                    'transition-colors duration-300',
+                    isScrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/80 hover:text-white'
+                  )}
+                >
+                  Giáo án
+                </Link>
+                <Link
+                  href="/exams"
+                  className={cn(
+                    'transition-colors duration-300',
+                    isScrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/80 hover:text-white'
+                  )}
+                >
+                  Đề thi
+                </Link>
+              </>
+            )}
           </div>
 
-          {/* Auth Buttons */}
+          {/* Auth Buttons & User Menu */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button
-              variant={isScrolled ? "ghost" : "ghost"}
-              className={cn(
-                "transition-colors duration-300",
-                isScrolled ? "text-gray-700" : "text-white hover:bg-white/10"
-              )}
-              asChild
-            >
-              <Link href="/login">Đăng nhập</Link>
-            </Button>
-            <Button
-              variant={isScrolled ? "primary" : "white"}
-              asChild
-            >
-              <Link href="/register">Dùng thử miễn phí</Link>
-            </Button>
+            {!auth.isAuthenticated ? (
+              // Show these buttons when not logged in
+              <div className="flex items-center space-x-4">
+                <Button
+                  variant={isScrolled ? "ghost" : "ghost"}
+                  className={cn(
+                    "transition-colors duration-300",
+                    isScrolled ? "text-gray-700" : "text-white hover:bg-white/10"
+                  )}
+                  asChild
+                >
+                  <Link href="/login">Đăng nhập</Link>
+                </Button>
+                <Button
+                  variant={isScrolled ? "primary" : "white"}
+                  asChild
+                >
+                  <Link href="/register">Dùng thử miễn phí</Link>
+                </Button>
+              </div>
+            ) : (
+              // Show these items when logged in
+              <div className="flex items-center space-x-4">
+                <Link href="/notifications" className="relative">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "transition-colors duration-300",
+                      isScrolled ? "text-gray-700" : "text-white hover:bg-white/10"
+                    )}
+                  >
+                    <svg 
+                      className="w-6 h-6" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" 
+                      />
+                    </svg>
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      0
+                    </span>
+                  </Button>
+                </Link>
+                <div className="flex items-center space-x-2">
+                  <span className={cn(
+                    "transition-colors duration-300",
+                    isScrolled ? "text-gray-700" : "text-white"
+                  )}>
+                    {auth.user?.fullName}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      localStorage.removeItem('token');
+                      localStorage.removeItem('user');
+                      router.push('/login');
+                    }}
+                    className={cn(
+                      "transition-colors duration-300",
+                      isScrolled ? "text-gray-700" : "text-white hover:bg-white/10"
+                    )}
+                  >
+                    Đăng xuất
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}

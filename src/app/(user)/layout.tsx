@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AuthService } from '@/services/auth';
 import { Button } from '@/components/ui/button';
+import { Toaster } from 'react-hot-toast';
 
 export default function UserLayout({
   children,
@@ -43,6 +44,7 @@ export default function UserLayout({
 
   return (
     <div className="user-layout min-h-screen bg-gray-50">
+      <Toaster position="top-right" />
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="px-6 py-4">
@@ -66,6 +68,32 @@ export default function UserLayout({
             </div>
 
             <div className="flex items-center space-x-4">
+              {/* Notification Button */}
+              <Link href="/notifications" className="relative">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-600 hover:text-gray-800"
+                >
+                  <svg 
+                    className="w-5 h-5" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" 
+                    />
+                  </svg>
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    0
+                  </span>
+                </Button>
+              </Link>
+
               <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
@@ -95,6 +123,27 @@ export default function UserLayout({
             <div className="space-y-1">
               {/* Core Navigation */}
               <div className="mb-6">
+                {/* Notifications Link */}
+                <Link 
+                  href="/notifications" 
+                  className="flex items-center space-x-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors mb-1"
+                >
+                  <svg 
+                    className="w-5 h-5" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" 
+                    />
+                  </svg>
+                  <span>Thông báo</span>
+                </Link>
+
                 <Link 
                   href="/dashboard" 
                   className="flex items-center space-x-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors mb-1"
