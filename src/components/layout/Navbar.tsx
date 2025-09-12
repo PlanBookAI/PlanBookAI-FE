@@ -283,33 +283,24 @@ export function Navbar() {
             isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           )}
         >
-          <div className="py-4 space-y-4">
+          <div className="py-4 space-y-4 bg-white/95 backdrop-blur-md shadow-lg border-t border-gray-200 mx-4 rounded-lg mt-2">
             <Link
               href="#features"
-              className={cn(
-                'block transition-colors duration-300',
-                isScrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/80 hover:text-white'
-              )}
+              className="block px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-300"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Tính năng
             </Link>
             <Link
               href="#about"
-              className={cn(
-                'block transition-colors duration-300',
-                isScrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/80 hover:text-white'
-              )}
+              className="block px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-300"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Giới thiệu
             </Link>
             <Link
               href="#contact"
-              className={cn(
-                'block transition-colors duration-300',
-                isScrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/80 hover:text-white'
-              )}
+              className="block px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-300"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Liên hệ
@@ -318,68 +309,43 @@ export function Navbar() {
               {isAuthenticated && user ? (
                 /* Mobile User Menu */
                 <>
-                  <div className="text-sm text-blue-100 mb-2">
+                  <div className="text-sm text-gray-600 mb-2 px-4">
                     Xin chào, {user.name || user.email}
                   </div>
-                  <Button
-                    variant={isScrolled ? "ghost" : "ghost"}
-                    className={cn(
-                      "w-full transition-colors duration-300",
-                      isScrolled ? "text-gray-700" : "text-white hover:bg-white/10"
-                    )}
-                    asChild
+                  <Link
+                    href="/dashboard"
+                    className="block px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-300"
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <Link 
-                      href="/dashboard"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Dashboard
-                    </Link>
-                  </Button>
-                  <Button
-                    variant={isScrolled ? "ghost" : "ghost"}
-                    className={cn(
-                      "w-full transition-colors duration-300",
-                      isScrolled ? "text-gray-700" : "text-white hover:bg-white/10"
-                    )}
+                    Dashboard
+                  </Link>
+                  <button
+                    className="w-full text-left px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-300"
                     onClick={() => {
                       handleLogout();
                       setIsMobileMenuOpen(false);
                     }}
                   >
                     Đăng xuất
-                  </Button>
+                  </button>
                 </>
               ) : (
                 /* Mobile Login/Register Buttons */
                 <>
-                  <Button
-                    variant={isScrolled ? "ghost" : "ghost"}
-                    className={cn(
-                      "w-full transition-colors duration-300",
-                      isScrolled ? "text-gray-700" : "text-white hover:bg-white/10"
-                    )}
-                    asChild
+                  <Link
+                    href="/login"
+                    className="block px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-300 text-center"
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <Link 
-                      href="/login"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Đăng nhập
-                    </Link>
-                  </Button>
-                  <Button
-                    variant={isScrolled ? "primary" : "white"}
-                    className="w-full"
-                    asChild
+                    Đăng nhập
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="block px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors duration-300 text-center"
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <Link 
-                      href="/register"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Dùng thử miễn phí
-                    </Link>
-                  </Button>
+                    Dùng thử miễn phí
+                  </Link>
                 </>
               )}
             </div>
