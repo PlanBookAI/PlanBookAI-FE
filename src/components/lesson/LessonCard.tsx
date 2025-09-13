@@ -6,10 +6,13 @@ interface LessonCardProps {
   onEdit?: (lesson: LessonPlan) => void;
   onView?: (lesson: LessonPlan) => void;
   onDelete?: (lesson: LessonPlan) => void;
-  onCopy?: (lesson: LessonPlan) => void;
+  onCopy?: (lesson: LessonPlan) => void; // sẽ dùng như nút Xóa theo yêu cầu mới
+  onApprove?: (lesson: LessonPlan) => void;
+  onPublish?: (lesson: LessonPlan) => void;
+  onArchive?: (lesson: LessonPlan) => void;
 }
 
-export function LessonCard({ lesson, onEdit, onView, onDelete, onCopy }: LessonCardProps) {
+export function LessonCard({ lesson, onEdit, onView, onDelete, onCopy, onApprove, onPublish, onArchive }: LessonCardProps) {
   const getStatusInfo = (status: LessonStatus) => {
     const statusMap: Record<LessonStatus, { label: string; className: string }> = {
       DRAFT: { label: 'Bản nháp', className: 'bg-yellow-100 text-yellow-800' },
@@ -43,9 +46,7 @@ export function LessonCard({ lesson, onEdit, onView, onDelete, onCopy }: LessonC
       
       {/* Nội dung chính */}
       <h3 className="text-lg font-semibold text-white mb-2">{lesson.tieuDe}</h3>
-      {lesson.moTa && (
-        <p className="text-blue-200 text-sm mb-2">{lesson.moTa}</p>
-      )}
+      {/* Mô tả (nếu backend có trường này, bổ sung vào types để hiển thị) */}
       {lesson.chuDeTen && (
         <p className="text-blue-300 text-xs mb-4 flex items-center">
           <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,13 +103,30 @@ export function LessonCard({ lesson, onEdit, onView, onDelete, onCopy }: LessonC
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-white hover:bg-white hover:bg-opacity-20"
+            className="text-red-200 hover:text-red-300 hover:bg-red-500/10"
             onClick={() => onCopy(lesson)}
           >
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 7h12M10 11v6m4-6v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2"/>
             </svg>
-            Copy
+            Xóa
+          </Button>
+        )}
+
+        {/* Trạng thái */}
+        {lesson.trangThai === 'DRAFT' && onApprove && (
+          <Button variant="secondary" size="sm" onClick={() => onApprove(lesson)} className="bg-white/80 text-blue-700 hover:bg-white">
+            Phê duyệt
+          </Button>
+        )}
+        {lesson.trangThai === 'COMPLETED' && onPublish && (
+          <Button variant="secondary" size="sm" onClick={() => onPublish(lesson)} className="bg-white/80 text-blue-700 hover:bg-white">
+            Xuất bản
+          </Button>
+        )}
+        {lesson.trangThai === 'PUBLISHED' && onArchive && (
+          <Button variant="secondary" size="sm" onClick={() => onArchive(lesson)} className="bg-white/80 text-blue-700 hover:bg-white">
+            Lưu trữ
           </Button>
         )}
       </div>

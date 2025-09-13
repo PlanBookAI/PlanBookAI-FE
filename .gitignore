@@ -121,7 +121,7 @@ tasks/
 task/
 
 # Symlinked backend and configuration
-backend
+backend/
 .cursor/
 public
 # Text files
