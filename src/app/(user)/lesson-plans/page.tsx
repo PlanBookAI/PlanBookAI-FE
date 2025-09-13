@@ -995,7 +995,7 @@ export default function TeacherLessonPlansPage() {
                   onClick={() => {
                     setShowCreateModal(false);
                     // Redirect to AI lesson planner when available
-                    window.location.href = '/ai/lesson-plans';
+                    window.location.href = '/workspace/plangenerator';
                   }}
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
