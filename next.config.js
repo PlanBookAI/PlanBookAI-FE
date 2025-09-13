@@ -19,15 +19,15 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
   },
+  // Allow all origins for Replit proxy (dev only)
+  allowedDevOrigins: ['*'],
+  // Security headers
   async headers() {
+    const isDev = process.env.NODE_ENV === 'development';
     return [
       {
         source: '/(.*)',
         headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
@@ -36,6 +36,18 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
           },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          ...(isDev ? [] : [{
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' https://*.replit.com https://*.replit.dev",
+          }]),
+          ...(isDev ? [] : [{
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          }])
         ],
       },
     ];
