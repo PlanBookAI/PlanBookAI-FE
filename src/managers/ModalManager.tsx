@@ -34,6 +34,8 @@ export interface ModalHandlers {
   onCloseCreateTemplateModal: () => void;
   onCloseCreateFromTemplateModal: () => void;
   onEditFromDetailModal: (lesson: LessonPlan) => void;
+  onEditTemplate: (template: LessonTemplate) => void;
+  onDeleteTemplate: (templateId: string) => void;
 }
 
 export interface ModalManagerProps {
@@ -101,6 +103,8 @@ export class ModalManager {
             onSubmit={handlers.onCreateFromTemplate}
             onClose={handlers.onCloseCreateFromTemplateModal}
             isLoading={loading.lessons}
+            onEdit={handlers.onEditTemplate}
+            onDelete={handlers.onDeleteTemplate}
           />
         )}
 
