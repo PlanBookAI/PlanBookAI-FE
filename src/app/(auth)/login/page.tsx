@@ -18,6 +18,7 @@ export default function LoginPage() {
     email: '',
     matKhau: '',
   });
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Force verify for login (critical point)
   const { isVerified, isLoading: isTurnstileLoading, error: turnstileError, verifyToken, reset } = useTurnstile(true);
@@ -41,7 +42,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const result = await AuthService.login(formData);
+      const result = await AuthService.login({ ...formData, rememberMe });
       
       if (result.thanhCong) {
         // Redirect to dashboard on successful login
@@ -123,6 +124,8 @@ export default function LoginPage() {
               id="remember-me"
               name="remember-me"
               type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
               className="h-4 w-4 rounded border-white/10 bg-white/5 text-primary focus:ring-2 focus:ring-primary"
             />
             <label htmlFor="remember-me" className="ml-2 block text-sm text-blue-100">

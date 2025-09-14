@@ -1,15 +1,15 @@
-// Lesson Plan Types - theo API structure từ Userflow.txt
+// Lesson Plan Types
 
 export type LessonStatus = 'DRAFT' | 'COMPLETED' | 'PUBLISHED' | 'ARCHIVED';
-export type SubjectType = 'HOA_HOC'; // Có thể mở rộng cho các môn khác
-export type GradeLevel = '10' | '11' | '12';
+export type SubjectType = 'HOA_HOC' | 1; // API dùng number enum: 1 = HOA_HOC
+export type GradeLevel = 10 | 11 | 12; // API dùng số
 
 export interface LessonPlan {
   id: number;
   tieuDe: string;
-  moTa?: string;
+  mucTieu?: string;
   khoi: GradeLevel;
-  monHoc: SubjectType;
+  monHoc: number; // 1 = HOA_HOC
   thoiLuongTiet: number;
   lopHoc?: string;
   ghiChu?: string;
@@ -26,32 +26,33 @@ export interface LessonPlan {
   nguoiTaoTen?: string;
   ngayTao: string;
   ngayCapNhat: string;
+  duocTaoTuAI?: boolean; // field từ API response
 }
 
 export interface LessonPlanCreateRequest {
-  tieuDe: string;
-  moTa?: string;
-  khoi: GradeLevel;
-  monHoc: SubjectType;
-  thoiLuongTiet: number;
-  lopHoc?: string;
-  ghiChu?: string;
-  suDungAI?: boolean;
-  yeuCauDacBiet?: string;
-  noiDungChiTiet?: any;
-  chuDeId?: number;
+  TieuDe: string;
+  MucTieu?: string;
+  Khoi: GradeLevel;
+  MonHoc: number; // 1 = HOA_HOC
+  ThoiLuongTiet: number;
+  LopHoc?: string;
+  GhiChu?: string;
+  SuDungAI?: boolean;
+  YeuCauDacBiet?: string;
+  MoTaChiTiet?: any; // JSON content
+  ChuDeId?: number;
 }
 
 export interface LessonPlanUpdateRequest extends Partial<LessonPlanCreateRequest> {
   id: number;
 }
 
-// Template Types - theo API structure
+// Template Types - theo API structure từ Postman collection
 export interface LessonTemplate {
   id: number;
   tieuDe: string;
   moTa: string;
-  monHoc: SubjectType;
+  monHoc: string; // "HOA_HOC"
   khoi: GradeLevel;
   trangThai: 'ACTIVE' | 'INACTIVE';
   noiDungMau: any; // JSON template content
@@ -65,33 +66,42 @@ export interface LessonTemplate {
 export interface LessonTemplateCreateRequest {
   tieuDe: string;
   moTa: string;
-  monHoc: SubjectType;
+  monHoc: string; // "HOA_HOC"
   khoi: GradeLevel;
   trangThai: 'ACTIVE' | 'INACTIVE';
-  noiDungMau: any;
+  noiDungMau: {
+    mucTieu: string;
+    thoiLuong: string;
+    phuongPhap: string;
+    noiDung: string[];
+    thietBi: string[];
+  };
 }
 
-// Topic Types - theo API structure
+// Topic Types - theo API structure từ Postman collection
 export interface Topic {
   id: number;
   ten: string;
   moTa?: string;
-  monHoc: SubjectType;
+  monHoc: string; // "HOA_HOC"
+  khoi?: GradeLevel;
   nguoiTaoId: number;
   ngayTao: string;
   ngayCapNhat: string;
 }
 
 export interface TopicCreateRequest {
-  ten: string;
-  moTa?: string;
-  monHoc: SubjectType;
+  Ten: string;
+  MoTa?: string;
+  MonHoc: string; // "HOA_HOC"
+  Khoi: GradeLevel;
+  ParentId?: number | null;
 }
 
-// Filter & Search Types
+// Filter & Search Types - theo API endpoints từ Userflow.txt
 export interface LessonPlanFilters {
   keyword?: string;
-  monHoc?: SubjectType;
+  monHoc?: string; // "HOA_HOC"
   khoi?: GradeLevel;
   chuDeId?: number;
   trangThai?: LessonStatus;
@@ -102,7 +112,7 @@ export interface LessonPlanFilters {
 
 export interface TemplateFilters {
   keyword?: string;
-  monHoc?: SubjectType;
+  monHoc?: string; // "HOA_HOC"
   khoi?: GradeLevel;
   type?: 'public' | 'mine';
   page?: number;
