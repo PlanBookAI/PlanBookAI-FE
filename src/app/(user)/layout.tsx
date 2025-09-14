@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AuthService } from '@/services/auth';
 import { Button } from '@/components/ui/button';
+import { AuthGuard } from '@/components/auth';
 
 export default function UserLayout({
   children,
@@ -15,15 +16,9 @@ export default function UserLayout({
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    // Kiểm tra authentication
-    if (!AuthService.isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
-
     const userData = AuthService.getUser();
     setUser(userData);
-  }, [router]);
+  }, []);
 
   const handleLogout = async () => {
     if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
@@ -42,8 +37,9 @@ export default function UserLayout({
   }
 
   return (
-    <div className="user-layout min-h-screen bg-gray-50">
-      {/* Header */}
+    <AuthGuard>
+      <div className="user-layout min-h-screen bg-gray-50">
+        {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="px-6 py-4">
           <div className="flex justify-between items-center">
@@ -238,6 +234,7 @@ export default function UserLayout({
           {children}
         </main>
       </div>
-    </div>
+      </div>
+    </AuthGuard>
   );
 }

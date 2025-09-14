@@ -25,14 +25,11 @@ export function AuthGuard({
         const authenticated = AuthService.isAuthenticated();
         const user = AuthService.getUser();
         
-        // Kiểm tra token có hợp lệ không
         if (authenticated && user) {
-          // Có thể thêm logic verify token với server nếu cần
           setIsAuthenticated(true);
         } else {
           setIsAuthenticated(false);
           if (requireAuth) {
-            // Clear any invalid tokens
             AuthService.clearTokens();
             router.push(redirectTo);
             return;
@@ -54,7 +51,6 @@ export function AuthGuard({
     checkAuth();
   }, [requireAuth, redirectTo, router]);
 
-  // Show loading while checking authentication
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 flex items-center justify-center">
@@ -66,7 +62,6 @@ export function AuthGuard({
     );
   }
 
-  // If auth required but not authenticated, don't render children
   if (requireAuth && !isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-600 via-red-700 to-red-800 flex items-center justify-center">
@@ -89,7 +84,7 @@ export function AuthGuard({
     );
   }
 
-  // Render children if authenticated or auth not required
   return <>{children}</>;
 }
 
+export default AuthGuard;
