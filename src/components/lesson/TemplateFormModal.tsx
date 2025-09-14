@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { LessonTemplate } from '@/types/lesson';
+import { LessonTemplate, GradeLevel } from '@/types/lesson';
 
 interface TemplateFormModalProps {
   template?: LessonTemplate; // Nếu có template thì là edit, không có là create
@@ -19,8 +19,11 @@ export function TemplateFormModal({ template, onSubmit, onClose, isLoading = fal
     monHoc: template?.monHoc || 'HOA_HOC',
     khoi: template?.khoi || 10,
     trangThai: template?.trangThai || 'INACTIVE',
-    mucTieuItems: Array.isArray(template?.noiDungMau?.CauTrucChung?.MucTieu) ? template!.noiDungMau!.CauTrucChung!.MucTieu : ['Kiến thức', 'Kỹ năng', 'Thái độ'],
-    noiDungKhungItems: Array.isArray(template?.noiDungMau?.CauTrucChung?.NoiDungKhung) ? template!.noiDungMau!.CauTrucChung!.NoiDungKhung : ['Ổn định', 'Bài mới', 'Củng cố', 'Dặn dò']
+    mucTieuItems: template?.noiDungMau?.mucTieu ? template.noiDungMau.mucTieu.split(', ') : ['Kiến thức', 'Kỹ năng', 'Thái độ'],
+    noiDungKhungItems: Array.isArray(template?.noiDungMau?.noiDung) ? template.noiDungMau.noiDung : ['Ổn định', 'Bài mới', 'Củng cố', 'Dặn dò'],
+    thoiLuong: template?.noiDungMau?.thoiLuong || '2 tiết',
+    phuongPhap: template?.noiDungMau?.phuongPhap || 'Thuyết trình, thí nghiệm',
+    thietBiItems: Array.isArray(template?.noiDungMau?.thietBi) ? template.noiDungMau.thietBi : ['Máy chiếu', 'Bảng viết', 'Sách giáo khoa']
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -30,14 +33,14 @@ export function TemplateFormModal({ template, onSubmit, onClose, isLoading = fal
     const { name, value, type } = e.target;
     
     if (name === 'khoi') {
-      setFormData(prev => ({ ...prev, [name]: Number(value) }));
+      setFormData(prev => ({ ...prev, [name]: Number(value) as GradeLevel }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
   
   // Helpers cho list inputs
-  const handleListChange = (field: 'mucTieuItems' | 'noiDungKhungItems', index: number, value: string) => {
+  const handleListChange = (field: 'mucTieuItems' | 'noiDungKhungItems' | 'thietBiItems', index: number, value: string) => {
     setFormData(prev => {
       const list = [...(prev as any)[field]] as string[];
       list[index] = value;
@@ -45,11 +48,11 @@ export function TemplateFormModal({ template, onSubmit, onClose, isLoading = fal
     });
   };
 
-  const addListItem = (field: 'mucTieuItems' | 'noiDungKhungItems') => {
+  const addListItem = (field: 'mucTieuItems' | 'noiDungKhungItems' | 'thietBiItems') => {
     setFormData(prev => ({ ...prev, [field]: [ ...(prev as any)[field], '' ] } as any));
   };
-
-  const removeListItem = (field: 'mucTieuItems' | 'noiDungKhungItems', index: number) => {
+  
+  const removeListItem = (field: 'mucTieuItems' | 'noiDungKhungItems' | 'thietBiItems', index: number) => {
     setFormData(prev => {
       const list = [ ...(prev as any)[field] ] as string[];
       list.splice(index, 1);
@@ -83,19 +86,20 @@ export function TemplateFormModal({ template, onSubmit, onClose, isLoading = fal
     
     try {
       // Prepare data for API
-      // Convert form to API format (PascalCase) + build NoiDungMau từ các field thân thiện
+      // Convert form to API format (camelCase) 
       const apiPayload = {
-        ...(isEditing ? { Id: template.id } : {}),
-        TieuDe: formData.tieuDe,
-        MoTa: formData.moTa,
-        MonHoc: formData.monHoc,
-        Khoi: formData.khoi,
-        TrangThai: formData.trangThai,
-        NoiDungMau: {
-          CauTrucChung: {
-            MucTieu: formData.mucTieuItems.filter(Boolean),
-            NoiDungKhung: formData.noiDungKhungItems.filter(Boolean)
-          }
+        ...(isEditing ? { id: template.id } : {}),
+        tieuDe: formData.tieuDe,
+        moTa: formData.moTa,
+        monHoc: formData.monHoc,
+        khoi: formData.khoi,
+        trangThai: formData.trangThai,
+        noiDungMau: {
+          mucTieu: formData.mucTieuItems.filter(Boolean).join(', '),
+          thoiLuong: formData.thoiLuong,
+          phuongPhap: formData.phuongPhap,
+          noiDung: formData.noiDungKhungItems.filter(Boolean),
+          thietBi: formData.thietBiItems.filter(Boolean)
         }
       };
       
@@ -245,13 +249,47 @@ export function TemplateFormModal({ template, onSubmit, onClose, isLoading = fal
               </p>
             </div>
 
+            {/* Thời lượng */}
+            <div className="space-y-2">
+              <label htmlFor="thoiLuong" className="block text-sm font-medium text-gray-700">
+                Thời lượng <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="thoiLuong"
+                name="thoiLuong"
+                value={formData.thoiLuong}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isLoading}
+                placeholder="VD: 2 tiết, 45 phút"
+              />
+            </div>
+
+            {/* Phương pháp */}
+            <div className="space-y-2">
+              <label htmlFor="phuongPhap" className="block text-sm font-medium text-gray-700">
+                Phương pháp <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="phuongPhap"
+                name="phuongPhap"
+                value={formData.phuongPhap}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isLoading}
+                placeholder="VD: Thuyết trình, thí nghiệm, thảo luận"
+              />
+            </div>
+
             {/* Cấu trúc mẫu - UI thân thiện */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Mục tiêu */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Mục tiêu</label>
                 <div className="space-y-2">
-                  {formData.mucTieuItems.map((item, idx) => (
+                  {formData.mucTieuItems.map((item: string, idx: number) => (
                     <div key={`mt-${idx}`} className="flex items-center space-x-2">
                       <input
                         type="text"
@@ -273,7 +311,7 @@ export function TemplateFormModal({ template, onSubmit, onClose, isLoading = fal
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Nội dung khung</label>
                 <div className="space-y-2">
-                  {formData.noiDungKhungItems.map((item, idx) => (
+                  {formData.noiDungKhungItems.map((item: string, idx: number) => (
                     <div key={`ndk-${idx}`} className="flex items-center space-x-2">
                       <input
                         type="text"
@@ -291,6 +329,28 @@ export function TemplateFormModal({ template, onSubmit, onClose, isLoading = fal
                 </div>
               </div>
             </div>
+
+            {/* Thiết bị */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Thiết bị cần thiết</label>
+              <div className="space-y-2">
+                {formData.thietBiItems.map((item: string, idx: number) => (
+                  <div key={`tb-${idx}`} className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) => handleListChange('thietBiItems', idx, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={isLoading}
+                    />
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removeListItem('thietBiItems', idx)}>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </Button>
+                  </div>
+                ))}
+                <Button type="button" variant="secondary" onClick={() => addListItem('thietBiItems')} className="bg-gray-100 text-gray-700 hover:bg-gray-200">Thêm thiết bị</Button>
+              </div>
+            </div>
           </div>
 
           {/* Footer */}
@@ -299,6 +359,8 @@ export function TemplateFormModal({ template, onSubmit, onClose, isLoading = fal
               variant="secondary"
               onClick={onClose}
               disabled={isLoading}
+              className="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+              style={{ visibility: 'visible', opacity: 1, display: 'block' }}
             >
               Hủy
             </Button>
@@ -306,6 +368,8 @@ export function TemplateFormModal({ template, onSubmit, onClose, isLoading = fal
               variant="primary"
               type="submit"
               disabled={isLoading}
+              className="bg-blue-600 text-white hover:bg-blue-700"
+              style={{ visibility: 'visible', opacity: 1, display: 'block' }}
             >
               {isLoading ? (
                 <>
