@@ -115,17 +115,31 @@ export class ExamService {
     pageSize: number = 10
   ): Promise<ExamPaginatedResponse> {
     try {
-      const params = {
-        pageNumber: page,
-        pageSize: pageSize,
-        ...(filters || {})
+      let endpoint: string;
+      let params: Record<string, any> = {
+        PageNumber: page,
+        PageSize: pageSize
       };
+
+      if (filters?.monHoc) {
+        endpoint = API_CONFIG.ENDPOINTS.EXAM.FILTER.SUBJECT;
+        params.subject = filters.monHoc;
+      } else if (filters?.khoiLop) {
+        endpoint = API_CONFIG.ENDPOINTS.EXAM.FILTER.GRADE;
+        params.grade = filters.khoiLop;
+      } else if (filters?.trangThai) {
+        endpoint = API_CONFIG.ENDPOINTS.EXAM.FILTER.STATUS;
+        params.status = filters.trangThai;
+      } else if (filters?.keyword) {
+        endpoint = API_CONFIG.ENDPOINTS.EXAM.SEARCH;
+        params.Keyword = filters.keyword;
+      } else {
+        endpoint = API_CONFIG.ENDPOINTS.EXAM.LIST;
+      }
 
       const filteredParams = Object.fromEntries(
         Object.entries(params).filter(([_, value]) => value !== undefined && value !== '')
       );
-
-      const endpoint = API_CONFIG.ENDPOINTS.EXAM.LIST;
       const url = this.makeUrl(endpoint, filteredParams);
 
       const controller = new AbortController();
@@ -155,97 +169,7 @@ export class ExamService {
     }
   }
 
-  async searchExams(
-    keyword: string,
-    page: number = 1,
-    pageSize: number = 10
-  ): Promise<ExamPaginatedResponse> {
-    const endpoint = API_CONFIG.ENDPOINTS.EXAM.SEARCH;
-    const params = {
-      Keyword: keyword,
-      PageNumber: page,
-      PageSize: pageSize,
-    };
 
-    const response = await this.fetchWithRetry(
-      this.makeUrl(endpoint, params),
-      {
-        headers: {
-          'Accept': 'application/json',
-        }
-      }
-    );
-    return this.handleResponse<ExamPaginatedResponse>(response, endpoint);
-  }
-
-  async filterBySubject(
-    subject: string,
-    page: number = 1,
-    pageSize: number = 10
-  ): Promise<ExamPaginatedResponse> {
-    const endpoint = API_CONFIG.ENDPOINTS.EXAM.FILTER.SUBJECT;
-    const params = {
-      subject,
-      PageNumber: page,
-      PageSize: pageSize,
-    };
-
-    const response = await this.fetchWithRetry(
-      this.makeUrl(endpoint, params),
-      {
-        headers: {
-          'Accept': 'application/json',
-        }
-      }
-    );
-    return this.handleResponse<ExamPaginatedResponse>(response, endpoint);
-  }
-
-  async filterByGrade(
-    grade: number,
-    page: number = 1,
-    pageSize: number = 10
-  ): Promise<ExamPaginatedResponse> {
-    const endpoint = API_CONFIG.ENDPOINTS.EXAM.FILTER.GRADE;
-    const params = {
-      grade,
-      PageNumber: page,
-      PageSize: pageSize,
-    };
-
-    const response = await this.fetchWithRetry(
-      this.makeUrl(endpoint, params),
-      {
-        headers: {
-          'Accept': 'application/json',
-        }
-      }
-    );
-    return this.handleResponse<ExamPaginatedResponse>(response, endpoint);
-  }
-
-  async filterByStatus(
-    status: string,
-    page: number = 1,
-    pageSize: number = 10
-  ): Promise<ExamPaginatedResponse> {
-    const endpoint = API_CONFIG.ENDPOINTS.EXAM.FILTER.STATUS;
-    const params = {
-      status,
-      PageNumber: page,
-      PageSize: pageSize,
-    };
-
-    const response = await this.fetchWithRetry(
-      this.makeUrl(endpoint, params),
-      {
-        headers: {
-          'Accept': 'application/json',
-        }
-      }
-    );
-    return this.handleResponse<ExamPaginatedResponse>(response, endpoint);
-  }
 
   async getExamById(id: number): Promise<DeThi> {
     const endpoint = API_CONFIG.ENDPOINTS.EXAM.DETAIL(id);
