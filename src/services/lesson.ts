@@ -18,7 +18,7 @@ import type {
 } from '@/types/lesson';
 
 export class LessonService {
-  private static baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  private static baseUrl = 'https://pba.khqi.site'; 
 
   // Helper method để tạo headers với authorization - BẮT BUỘC cho mọi lesson plan API
   private static getAuthHeaders(): Record<string, string> {
@@ -94,12 +94,6 @@ export class LessonService {
       }
     } catch (error) {
       console.error('💥 Error fetching lesson plans:', error);
-      
-      // Nếu lỗi authentication, redirect về login
-      if (error instanceof Error && error.message.includes('token')) {
-        AuthService.clearTokens();
-        window.location.href = '/login';
-      }
       
       return {
         thanhCong: false,
@@ -491,7 +485,7 @@ export class LessonService {
       const url = `${this.baseUrl}/api/v1/mau-giao-an/cong-khai${params.toString() ? `?${params.toString()}` : ''}`;
       const response = await fetch(url, {
         method: 'GET',
-        headers: this.getPublicHeaders(), // Không cần auth
+        headers: this.getAuthHeaders(),
       });
 
       const result = await response.json();
@@ -612,14 +606,14 @@ export class LessonService {
   }
 
   // PUT /api/v1/mau-giao-an/{id} - Cập nhật mẫu
-  static async updateTemplate(data: any): Promise<TemplateResponse> {
+  static async updateTemplate(templateId: string, data: LessonTemplateCreateRequest): Promise<TemplateResponse> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/v1/mau-giao-an/${data.id}`, {
+      const response = await fetch(`${this.baseUrl}/api/v1/mau-giao-an/${templateId}`, {
         method: 'PUT',
         headers: this.getAuthHeaders(),
         body: JSON.stringify(data),
       });
-
+  
       const result = await response.json();
       
       if (response.ok && result.thanhCong) {
@@ -641,22 +635,30 @@ export class LessonService {
   }
 
   // DELETE /api/v1/mau-giao-an/{id} - Xóa mẫu
-  static async deleteTemplate(id: number): Promise<TemplateResponse> {
+  static async deleteTemplate(templateId: string): Promise<TemplateResponse> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/v1/mau-giao-an/${id}`, {
+      const response = await fetch(`${this.baseUrl}/api/v1/mau-giao-an/${templateId}`, {
         method: 'DELETE',
         headers: this.getAuthHeaders(),
       });
+  
+      let result;
+      try {
+        result = await response.json();
+      } catch (error) {
+        // Nếu response không phải JSON, tạo response mặc định
+        result = {
+          thanhCong: false,
+          thongDiep: 'Lỗi server: Response không hợp lệ'
+        };
+      }
 
-      const result = await response.json();
-      
       if (response.ok && result.thanhCong) {
         return result;
       } else {
-        console.error('API error:', result);
         return {
           thanhCong: false,
-          thongDiep: result.thongDiep || 'Không thể xóa mẫu',
+          thongDiep: result.thongDiep || `Lỗi server: ${response.status} ${response.statusText}`,
         };
       }
     } catch (error) {
@@ -733,7 +735,7 @@ export class LessonService {
     try {
       const response = await fetch(`${this.baseUrl}/api/v1/chu-de/theo-mon/${subject}`, {
         method: 'GET',
-        headers: this.getAuthHeaders(),
+        headers: this.getPublicHeaders(), // không cần auth
       });
 
       const result = await response.json();

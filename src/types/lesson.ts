@@ -1,4 +1,4 @@
-// Lesson Plan Types - theo API structure từ Userflow.txt và Postman collection
+// Lesson Plan Types
 
 export type LessonStatus = 'DRAFT' | 'COMPLETED' | 'PUBLISHED' | 'ARCHIVED';
 export type SubjectType = 'HOA_HOC' | 1; // API dùng number enum: 1 = HOA_HOC
@@ -64,12 +64,18 @@ export interface LessonTemplate {
 }
 
 export interface LessonTemplateCreateRequest {
-  TieuDe: string;
-  MoTa: string;
-  MonHoc: string; // "HOA_HOC"
-  Khoi: GradeLevel;
-  TrangThai: 'ACTIVE' | 'INACTIVE';
-  NoiDungMau: any;
+  tieuDe: string;
+  moTa: string;
+  monHoc: string; // "HOA_HOC"
+  khoi: GradeLevel;
+  trangThai: 'ACTIVE' | 'INACTIVE';
+  noiDungMau: {
+    mucTieu: string;
+    thoiLuong: string;
+    phuongPhap: string;
+    noiDung: string[];
+    thietBi: string[];
+  };
 }
 
 // Topic Types - theo API structure từ Postman collection

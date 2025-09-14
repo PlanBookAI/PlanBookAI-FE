@@ -105,10 +105,7 @@ export const useTemplates = () => {
   // Cập nhật mẫu
   const updateTemplate = useCallback(async (id: number, data: any) => {
     try {
-      const response = await LessonService.updateTemplate({
-        id,
-        ...data
-      });
+      const response = await LessonService.updateTemplate(id.toString(), data);
       
       if (response.thanhCong && response.duLieu) {
         // Refresh danh sách sau khi cập nhật thành công
@@ -124,20 +121,23 @@ export const useTemplates = () => {
   }, [fetchMyTemplates]);
 
   // Xóa mẫu
-  const deleteTemplate = useCallback(async (id: number) => {
+  const deleteTemplate = useCallback(async (id: string) => {
     try {
       const response = await LessonService.deleteTemplate(id);
       
       if (response.thanhCong) {
         // Refresh danh sách sau khi xóa thành công
         fetchMyTemplates();
-        return true;
+        return response;
       } else {
-        throw new Error(response.thongDiep || 'Không thể xóa mẫu');
+        return response;
       }
     } catch (err) {
       console.error('Error deleting template:', err);
-      throw err;
+      return {
+        thanhCong: false,
+        thongDiep: 'Lỗi kết nối khi xóa mẫu'
+      };
     }
   }, [fetchMyTemplates]);
 
