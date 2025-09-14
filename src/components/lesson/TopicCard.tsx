@@ -4,7 +4,6 @@ import type { Topic } from '@/types/lesson';
 interface TopicCardProps {
   topic: Topic;
   lessonCount?: number;
-  onSelect?: () => void;
   onFilter?: (topic: Topic) => void;
   onEdit?: (topic: Topic) => void;
   onDelete?: (topic: Topic) => void;
@@ -14,7 +13,6 @@ interface TopicCardProps {
 export function TopicCard({ 
   topic, 
   lessonCount = 0,
-  onSelect,
   onFilter, 
   onEdit, 
   onDelete,
@@ -47,21 +45,6 @@ export function TopicCard({
       
       {/* Action buttons */}
       <div className="flex items-center space-x-2">
-        {onSelect && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-white hover:bg-white hover:bg-opacity-20"
-            onClick={onSelect}
-          >
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z"/>
-            </svg>
-            Chọn
-          </Button>
-        )}
-
         {onFilter && (
           <Button 
             variant="ghost" 

@@ -1,9 +1,5 @@
 // Export all lesson components
-export * from './LessonCard';
-export * from './LessonDetailModal';
-export * from './LessonFormModal';
-export * from './TemplateFormModal';
-export * from './CreateFromTemplateModal';
-export * from './LessonFilters';
-export * from './TemplateCard';
-export * from './TopicCard';
+export { LessonCard } from './LessonCard';
+export { TemplateCard } from './TemplateCard';
+export { TopicCard, CreateTopicCard } from './TopicCard';
+export { LessonFilters } from './LessonFilters';
