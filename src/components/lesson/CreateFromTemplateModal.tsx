@@ -8,9 +8,11 @@ interface CreateFromTemplateModalProps {
   onSubmit: (templateId: number, data: any) => Promise<void>;
   onClose: () => void;
   isLoading?: boolean;
+  onEdit?: (template: LessonTemplate) => void;
+  onDelete?: (templateId: string) => void;
 }
 
-export function CreateFromTemplateModal({ template, topics, onSubmit, onClose, isLoading = false }: CreateFromTemplateModalProps) {
+export function CreateFromTemplateModal({ template, topics, onSubmit, onClose, isLoading = false, onEdit, onDelete }: CreateFromTemplateModalProps) {
   // Form state
   const [formData, setFormData] = useState({
     tieuDe: `${template.tieuDe}`,
@@ -92,7 +94,7 @@ export function CreateFromTemplateModal({ template, topics, onSubmit, onClose, i
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full h-[90vh] flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
@@ -103,7 +105,7 @@ export function CreateFromTemplateModal({ template, topics, onSubmit, onClose, i
                 </svg>
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Tạo giáo án từ mẫu</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Mẫu giáo án</h2>
                 <p className="text-sm text-gray-500">{template.tieuDe}</p>
               </div>
             </div>
@@ -120,7 +122,7 @@ export function CreateFromTemplateModal({ template, topics, onSubmit, onClose, i
           </div>
         </div>
 
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto flex-1">
           {/* Template info */}
           <div className="space-y-4">
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -152,10 +154,59 @@ export function CreateFromTemplateModal({ template, topics, onSubmit, onClose, i
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Cấu trúc mẫu</h3>
-              <pre className="text-xs text-gray-700 overflow-auto max-h-60 whitespace-pre-wrap">
-                {JSON.stringify(template.noiDungMau, null, 2)}
-              </pre>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Cấu trúc mẫu</h3>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium text-gray-900">Mục tiêu học tập:</h4>
+                  <p className="text-gray-700 bg-white p-3 rounded-md mt-1">
+                    {template.noiDungMau?.mucTieu || 'Chưa có thông tin'}
+                  </p>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium text-gray-900">Thời lượng:</h4>
+                  <p className="text-gray-700 bg-white p-3 rounded-md mt-1">
+                    {template.noiDungMau?.thoiLuong || 'Chưa có thông tin'}
+                  </p>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium text-gray-900">Phương pháp giảng dạy:</h4>
+                  <p className="text-gray-700 bg-white p-3 rounded-md mt-1">
+                    {template.noiDungMau?.phuongPhap || 'Chưa có thông tin'}
+                  </p>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium text-gray-900">Nội dung bài học:</h4>
+                  <div className="bg-white p-3 rounded-md mt-1">
+                    {Array.isArray(template.noiDungMau?.noiDung) ? (
+                      <ul className="list-disc list-inside space-y-1">
+                        {template.noiDungMau.noiDung.map((item: string, index: number) => (
+                          <li key={index} className="text-gray-700">{item}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-700">Chưa có thông tin</p>
+                    )}
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium text-gray-900">Thiết bị cần thiết:</h4>
+                  <div className="bg-white p-3 rounded-md mt-1">
+                    {Array.isArray(template.noiDungMau?.thietBi) ? (
+                      <ul className="list-disc list-inside space-y-1">
+                        {template.noiDungMau.thietBi.map((item: string, index: number) => (
+                          <li key={index} className="text-gray-700">{item}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-700">Chưa có thông tin</p>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -304,11 +355,56 @@ export function CreateFromTemplateModal({ template, topics, onSubmit, onClose, i
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-200 flex justify-end space-x-2">
+        <div className="p-6 border-t border-gray-200 flex justify-between bg-white relative z-10">
+          <div className="flex space-x-2">
+            <Button
+              variant="secondary"
+              onClick={() => onEdit?.(template)}
+              disabled={isLoading}
+              className="!visible !opacity-100 !block"
+              style={{
+                visibility: 'visible' as const,
+                opacity: 1,
+                display: 'block',
+                color: 'blue',
+                backgroundColor: 'white',
+                borderColor: 'blue'
+              }}
+            >
+              Sửa
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => onDelete?.(template.id.toString())}
+              disabled={isLoading}
+              className="!visible !opacity-100 !block"
+              style={{
+                visibility: 'visible' as const,
+                opacity: 1,
+                display: 'block',
+                color: 'red',
+                backgroundColor: 'white',
+                borderColor: 'red'
+              }}
+            >
+              Xóa
+            </Button>
+          </div>
+          
+          <div className="flex space-x-2"> 
+
           <Button
             variant="secondary"
             onClick={onClose}
             disabled={isLoading}
+            className="!visible !opacity-100 !block"
+            style={{
+              visibility: 'visible' as const,
+              opacity: 1,
+              display: 'block',
+              color: 'black',
+              backgroundColor: 'white',
+              }}
           >
             Hủy
           </Button>
@@ -316,6 +412,14 @@ export function CreateFromTemplateModal({ template, topics, onSubmit, onClose, i
             variant="primary"
             onClick={handleSubmit}
             disabled={isLoading}
+            className="!visible !opacity-100 !block"
+            style={{ 
+              visibility: 'visible' as const, 
+              opacity: 1,
+              display: 'block',
+              color: 'white',
+              backgroundColor: 'blue',
+            }}
           >
             {isLoading ? (
               <>
@@ -329,6 +433,7 @@ export function CreateFromTemplateModal({ template, topics, onSubmit, onClose, i
               'Tạo giáo án từ mẫu'
             )}
           </Button>
+          </div>
         </div>
       </div>
     </div>
