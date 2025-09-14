@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     // Verify token with Cloudflare
     const formData = new FormData();
-    formData.append('secret', process.env.NEXT_PUBLIC_TURNSTILE_SECRET_KEY || '');
+    formData.append('secret', process.env.TURNSTILE_SECRET_KEY || '');
     formData.append('response', token);
 
     const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
