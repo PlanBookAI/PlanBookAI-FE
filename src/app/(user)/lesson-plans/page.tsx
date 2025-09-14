@@ -131,6 +131,10 @@ export default function TeacherLessonPlansPage() {
     createFromTemplate: lessonHooks.createFromTemplate,
     getTemplate: templateHooks.getTemplate,
     createTemplate: templateHooks.createTemplate,
+
+    // Template functions
+    deleteTemplate: templateHooks.deleteTemplate,
+    getTemplates: templateHooks.fetchMyTemplates,
     
     // State setters
     setSelectedLessonPlan,
@@ -140,7 +144,10 @@ export default function TeacherLessonPlansPage() {
     setShowCreateModal,
     setShowTemplateModal,
     setShowCreateTemplateModal,
-    setShowCreateFromTemplateModal
+    setShowCreateFromTemplateModal,
+
+    // Modal state setter
+    setModalState,
   };
 
   // Create handlers instance
@@ -161,7 +168,11 @@ export default function TeacherLessonPlansPage() {
     onCloseTemplateModal: handlers.handleCloseTemplateModal,
     onCloseCreateTemplateModal: handlers.handleCloseCreateTemplateModal,
     onCloseCreateFromTemplateModal: handlers.handleCloseCreateFromTemplateModal,
-    onEditFromDetailModal: handlers.handleEditFromDetailModal
+    onEditFromDetailModal: handlers.handleEditFromDetailModal,
+
+    // Template management handlers 
+    onEditTemplate: handlers.handleEditTemplate,
+    onDeleteTemplate: handlers.handleDeleteTemplate
   };
 
   // ================== COMPUTED VALUES ==================
