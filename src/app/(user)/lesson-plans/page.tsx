@@ -524,6 +524,29 @@ export default function TeacherLessonPlansPage() {
                     </button>
                   </div>
                 </div>
+
+                {/* Quick Actions - DYNAMIC */}
+                <div className="border-t border-white border-opacity-20 pt-4">
+                  <div className="px-3 py-2 text-xs font-medium text-blue-200 uppercase tracking-wider mb-2">
+                    Thao tác nhanh
+                  </div>
+                  
+                  {/* New action button for notifications */}
+                  <button
+                    onClick={() => window.location.href = '/notifications'}
+                    className={`flex items-center space-x-3 px-3 py-2 rounded-lg w-full text-left transition-colors mb-1 ${
+                      activeTab === 'notifications' 
+                        ? 'bg-white bg-opacity-20 text-white font-medium' 
+                        : 'text-blue-100 hover:bg-white hover:bg-opacity-10'
+                    }`}
+                  >
+                    <svg className="w-4 h-4 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <span>Thông báo</span>
+                    <span className="ml-auto text-xs bg-yellow-400 bg-opacity-80 text-yellow-900 px-2 py-1 rounded">New</span>
+                  </button>
+                </div>
               </div>
             </nav>
           </aside>
