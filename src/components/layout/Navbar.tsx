@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { AuthService } from '@/services/auth';
 import { cn } from '@/lib/utils';
+import { NotificationButton } from '@/components/notification/NotificationButton';
 
 export function Navbar() {
   const router = useRouter();
@@ -172,7 +173,8 @@ export function Navbar() {
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated && user ? (
               /* User Menu */
-              <div className="relative">
+              <div className="relative flex items-center space-x-4">
+                <NotificationButton />
                 <Button
                   variant="ghost"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -206,6 +208,13 @@ export function Navbar() {
                       onClick={() => setIsUserMenuOpen(false)}
                     >
                       Dashboard
+                    </Link>
+                    <Link
+                      href="/notifications"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      Thông báo
                     </Link>
                     <hr className="my-1 border-gray-200" />
                     <button
@@ -318,6 +327,13 @@ export function Navbar() {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Dashboard
+                  </Link>
+                  <Link
+                    href="/notifications"
+                    className="block px-4 py-2 text-gray-800 hover:text-blue-600 hover:bg-white/50 rounded-lg transition-all duration-300"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Thông báo
                   </Link>
                   <button
                     className="w-full text-left px-4 py-2 text-gray-800 hover:text-red-600 hover:bg-white/50 rounded-lg transition-all duration-300"
