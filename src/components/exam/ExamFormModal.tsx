@@ -17,27 +17,36 @@ export function ExamFormModal({
   onSubmit,
   exam
 }: ExamFormModalProps) {
-  if (!isOpen) return null;
-
-  const [formData, setFormData] = useState<Partial<DeThi>>({
-    tieuDe: '',
-    huongDan: '',
-    khoiLop: 10,
-    monHoc: 'TOAN',
-    thoiGianLamBai: 45,
-    tongDiem: 10,
-    trangThai: 'DRAFT',
-    cauHois: []
-  });
+  const [formData, setFormData] = useState<Partial<DeThi>>(() => ({
+    tieuDe: exam?.tieuDe || '',
+    huongDan: exam?.huongDan || '',
+    khoiLop: exam?.khoiLop || 10,
+    monHoc: exam?.monHoc || 'TOAN',
+    thoiGianLamBai: exam?.thoiGianLamBai || 45,
+    tongDiem: exam?.tongDiem || 10,
+    trangThai: exam?.trangThai || 'DRAFT',
+    cauHois: exam?.cauHois || []
+  }));
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (exam) {
-      setFormData(exam);
+    if (exam && isOpen) {
+      setFormData({
+        tieuDe: exam.tieuDe,
+        huongDan: exam.huongDan,
+        khoiLop: exam.khoiLop,
+        monHoc: exam.monHoc,
+        thoiGianLamBai: exam.thoiGianLamBai,
+        tongDiem: exam.tongDiem,
+        trangThai: exam.trangThai,
+        cauHois: exam.cauHois
+      });
     }
-  }, [exam]);
+  }, [exam, isOpen]);
+
+  if (!isOpen) return null;
 
   const handleInputChange = (field: keyof DeThi, value: any) => {
     setFormData(prev => ({

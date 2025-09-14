@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
-import type { ExamStatusType, ExamFilters } from '@/types/exam';
+import type { DeThiFilter, MonHoc, TrangThai } from '@/types/exam';
 
 interface ExamFiltersProps {
-  filters: ExamFilters;
-  onFilterChange: (filters: ExamFilters) => void;
+  filters: DeThiFilter;
+  onFilterChange: (filters: DeThiFilter) => void;
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
@@ -53,16 +53,16 @@ export function ExamFilters({ filters, onFilterChange, activeTab, onTabChange }:
       <Input
         type="text"
         placeholder="Tìm kiếm đề thi..."
-        value={filters.search || ''}
-        onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
+        value={filters.keyword || ''}
+        onChange={(e) => onFilterChange({ ...filters, keyword: e.target.value })}
         className="bg-blue-50 bg-opacity-10 text-blue-300 placeholder-blue-400 placeholder-opacity-50 border-blue-600 focus:border-blue-500"
       />
 
       {/* Grade and Subject Filters */}
       <div className="flex space-x-4">
         <select
-          value={filters.grade || ''}
-          onChange={(e) => onFilterChange({ ...filters, grade: e.target.value })}
+          value={String(filters.khoiLop || '')}
+          onChange={(e) => onFilterChange({ ...filters, khoiLop: parseInt(e.target.value) || undefined })}
           className="bg-blue-50 bg-opacity-10 text-blue-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 border border-blue-600"
         >
           <option value="">Tất cả khối</option>
@@ -74,8 +74,8 @@ export function ExamFilters({ filters, onFilterChange, activeTab, onTabChange }:
         </select>
 
         <select
-          value={filters.subject || ''}
-          onChange={(e) => onFilterChange({ ...filters, subject: e.target.value })}
+          value={filters.monHoc || ''}
+          onChange={(e) => onFilterChange({ ...filters, monHoc: e.target.value as MonHoc || undefined })}
           className="bg-blue-50 bg-opacity-10 text-blue-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 border border-blue-600"
         >
           <option value="">Tất cả môn học</option>

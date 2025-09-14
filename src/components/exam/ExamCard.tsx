@@ -6,10 +6,9 @@ interface ExamCardProps {
   onEdit?: (exam: DeThi) => void;
   onView?: (exam: DeThi) => void;
   onDelete?: (exam: DeThi) => void;
-  onCopy?: (exam: DeThi) => void;
 }
 
-export function ExamCard({ exam, onEdit, onView, onDelete, onCopy }: ExamCardProps) {
+export function ExamCard({ exam, onEdit, onView, onDelete }: ExamCardProps) {
   const getStatusInfo = (status: TrangThai) => {
     const statusMap: Record<TrangThai, { label: string; className: string }> = {
       DRAFT: { label: 'Bản nháp', className: 'bg-blue-100 text-blue-800' },
@@ -71,15 +70,7 @@ export function ExamCard({ exam, onEdit, onView, onDelete, onCopy }: ExamCardPro
             Sửa
           </Button>
         )}
-        {onCopy && (
-          <Button
-            onClick={() => onCopy(exam)}
-            variant="ghost"
-            className="text-blue-300 hover:text-blue-100 hover:bg-blue-700 hover:bg-opacity-20"
-          >
-            Sao chép
-          </Button>
-        )}
+
         {onDelete && (
           <Button
             onClick={() => onDelete(exam)}

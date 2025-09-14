@@ -71,15 +71,6 @@ export default function ExamsPage() {
     }
   };
 
-  const handleCopy = async (exam: DeThi) => {
-    try {
-      await examService.copyExam(exam.id);
-      await fetchExams();
-    } catch (error) {
-      console.error('Failed to copy exam:', error);
-      alert(error instanceof Error ? error.message : 'Không thể sao chép đề thi');
-    }
-  };
 
   const handleSubmit = async (examData: Partial<DeThi>) => {
     try {
@@ -115,10 +106,10 @@ export default function ExamsPage() {
           <h2 className="text-xl font-semibold text-blue-100">Trạng thái</h2>
           <div className="space-y-2">
             {[
-              { id: 'all', label: 'Tất cả', count: exams.length },
-              { id: 'DRAFT', label: 'Bản nháp', count: exams.filter(e => e.trangThai === 'DRAFT').length },
-              { id: 'PUBLISHED', label: 'Đã xuất bản', count: exams.filter(e => e.trangThai === 'PUBLISHED').length },
-              { id: 'ARCHIVED', label: 'Lưu trữ', count: exams.filter(e => e.trangThai === 'ARCHIVED').length }
+              { id: 'all', label: 'Tất cả', count: exams?.length || 0 },
+              { id: 'DRAFT', label: 'Bản nháp', count: exams?.filter(e => e.trangThai === 'DRAFT')?.length || 0 },
+              { id: 'PUBLISHED', label: 'Đã xuất bản', count: exams?.filter(e => e.trangThai === 'PUBLISHED')?.length || 0 },
+              { id: 'ARCHIVED', label: 'Lưu trữ', count: exams?.filter(e => e.trangThai === 'ARCHIVED')?.length || 0 }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -226,16 +217,19 @@ export default function ExamsPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             <span className="ml-2 text-blue-300">Đang tải...</span>
           </div>
-        ) : exams.length > 0 ? (
+        ) : error ? (
+          <div className="flex justify-center items-center min-h-[200px] text-red-500">
+            <p>{error}</p>
+          </div>
+        ) : (exams?.length ?? 0) > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {exams.map((exam) => (
+            {(exams || []).map((exam) => (
               <ExamCard
                 key={exam.id}
                 exam={exam}
                 onEdit={handleEdit}
                 onView={handleView}
                 onDelete={handleDelete}
-                onCopy={handleCopy}
               />
             ))}
           </div>
@@ -253,15 +247,17 @@ export default function ExamsPage() {
         )}
 
         {/* Modals */}
-        <ExamFormModal
-          isOpen={showCreateModal}
-          onClose={() => {
-            setShowCreateModal(false);
-            setSelectedExam(null);
-          }}
-          onSubmit={handleSubmit}
-          exam={selectedExam || undefined}
-        />
+        {showCreateModal && (
+          <ExamFormModal
+            isOpen={true}
+            onClose={() => {
+              setShowCreateModal(false);
+              setSelectedExam(null);
+            }}
+            onSubmit={handleSubmit}
+            exam={selectedExam || undefined}
+          />
+        )}
 
         {selectedExam && showPreview && (
           <ExamPreview
