@@ -11,6 +11,10 @@ export interface LessonPageHandlersProps {
   createFromTemplate: (templateId: number, data: any) => Promise<any>;
   getTemplate: (id: number) => Promise<LessonTemplate>;
   createTemplate: (data: any) => Promise<any>;
+
+  // Template functions 
+  deleteTemplate: (id: string) => Promise<any>;
+  getTemplates: () => Promise<void>;
   
   // State setters
   setSelectedLessonPlan: (lesson: LessonPlan | null) => void;
@@ -21,6 +25,9 @@ export interface LessonPageHandlersProps {
   setShowTemplateModal: (show: boolean) => void;
   setShowCreateTemplateModal: (show: boolean) => void;
   setShowCreateFromTemplateModal: (show: boolean) => void;
+
+  // Modal state setter
+  setModalState: (updater: (prev: any) => any) => void;
 }
 
 export class LessonPageHandlers {
@@ -211,5 +218,52 @@ export class LessonPageHandlers {
   handleEditFromDetailModal = (lesson: LessonPlan) => {
     this.props.setShowDetailModal(false);
     this.handleEditLessonPlan(lesson);
+  };
+
+  // Handle edit template
+  handleEditTemplate = (template: LessonTemplate) => {
+    console.log('Edit template:', template);
+    // Mở modal edit template với dữ liệu hiện tại
+    this.props.setModalState(prev => ({
+      ...prev,
+      showCreateFromTemplateModal: false,
+      showTemplateModal: false,
+      showCreateTemplateModal: true,
+      selectedTemplate: template
+    }));
+  };
+
+  // Handle delete template
+  handleDeleteTemplate = async (templateId: string) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa mẫu này?')) {
+      return;
+    }
+
+    // Kiểm tra templateId hợp lệ (UUID format)
+    if (!templateId || templateId.trim() === '') {
+      alert('ID mẫu không hợp lệ!');
+      return;
+    }
+    
+    try {
+      console.log('Deleting template:', templateId);
+      const result = await this.props.deleteTemplate(templateId);
+      
+      if (result.thanhCong) {
+        alert('Xóa mẫu thành công!');
+        // Refresh danh sách mẫu
+        await this.props.getTemplates();
+        // Đóng modal
+        this.props.setModalState(prev => ({
+          ...prev,
+          showCreateFromTemplateModal: false
+        }));
+      } else {
+        alert('Xóa mẫu thất bại: ' + result.thongDiep);
+      }
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      alert('Lỗi khi xóa mẫu');
+    }
   };
 }
