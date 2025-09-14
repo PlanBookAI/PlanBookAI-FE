@@ -39,7 +39,7 @@ interface AuthResponse {
 }
 
 export class AuthService {
-  private static baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  private static baseUrl = 'https://pba.khqi.site';
 
   static async login(data: LoginData): Promise<AuthResponse> {
     try {
