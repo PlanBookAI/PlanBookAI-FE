@@ -13,6 +13,7 @@ export interface LessonPageHandlersProps {
   createTemplate: (data: any) => Promise<any>;
 
   // Template functions 
+  updateTemplate: (id: number, data: any) => Promise<any>;
   deleteTemplate: (id: string) => Promise<any>;
   getTemplates: () => Promise<void>;
   
@@ -150,7 +151,7 @@ export class LessonPageHandlers {
       this.props.setShowCreateFromTemplateModal(true);
     } catch (error) {
       alert('Không thể tải chi tiết mẫu');
-      console.error('Error viewing template:', error);
+      console.error('Error viewing template:', error); 
     }
   };
 
@@ -175,6 +176,18 @@ export class LessonPageHandlers {
     } catch (error) {
       alert('Không thể tạo mẫu');
       console.error('Error creating template:', error);
+      throw error; // Re-throw để modal có thể handle loading state
+    }
+  };
+  handleUpdateTemplate = async (data: any) => {
+    try {
+      await this.props.updateTemplate(data.id, data);
+      alert('Cập nhật mẫu thành công!');
+      this.props.setShowCreateTemplateModal(false);
+      this.props.setSelectedTemplate(null);
+    } catch (error) {
+      alert('Không thể cập nhật mẫu');
+      console.error('Error updating template:', error);
       throw error; // Re-throw để modal có thể handle loading state
     }
   };
