@@ -26,6 +26,7 @@ export interface ModalHandlers {
   onUpdateLessonPlan: (data: any) => Promise<void>;
   onCreateFromTemplate: (templateId: number, data: any) => Promise<void>;
   onCreateTemplate: (data: any) => Promise<void>;
+  onUpdateTemplate: (data: any) => Promise<void>;
   onSelectTemplate: (template: LessonTemplate) => void;
   onCloseDetailModal: () => void;
   onCloseCreateModal: () => void;
@@ -89,7 +90,9 @@ export class ModalManager {
         {/* Create Template Modal */}
         {state.showCreateTemplateModal && (
           <TemplateFormModal
-            onSubmit={handlers.onCreateTemplate}
+            template={state.selectedTemplate || undefined}
+            topics={topics}
+            onSubmit={state.selectedTemplate ? handlers.onUpdateTemplate : handlers.onCreateTemplate}
             onClose={handlers.onCloseCreateTemplateModal}
             isLoading={loading.templates}
           />

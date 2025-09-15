@@ -23,7 +23,7 @@ export function CreateFromTemplateModal({ template, topics, onSubmit, onClose, i
     ghiChu: '',
     suDungAI: false,
     yeuCauDacBiet: '',
-    chuDeId: undefined as number | undefined,
+    chuDeId: '' as string,
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -31,12 +31,14 @@ export function CreateFromTemplateModal({ template, topics, onSubmit, onClose, i
   // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    
+  
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({ ...prev, [name]: checked }));
-    } else if (name === 'khoi' || name === 'monHoc' || name === 'thoiLuongTiet' || name === 'chuDeId') {
+    } else if (name === 'khoi' || name === 'monHoc' || name === 'thoiLuongTiet') {
       setFormData(prev => ({ ...prev, [name]: Number(value) }));
+    } else if (name === 'chuDeId') {
+      setFormData(prev => ({ ...prev, chuDeId: value })); 
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -77,7 +79,7 @@ export function CreateFromTemplateModal({ template, topics, onSubmit, onClose, i
         GhiChu: formData.ghiChu || undefined,
         SuDungAI: formData.suDungAI,
         YeuCauDacBiet: formData.yeuCauDacBiet || undefined,
-        ChuDeId: formData.chuDeId || undefined
+        ChuDeId: formData.chuDeId ? Number(formData.chuDeId) : undefined
       };
       
       await onSubmit(template.id, apiData);
@@ -277,14 +279,17 @@ export function CreateFromTemplateModal({ template, topics, onSubmit, onClose, i
                 <select
                   id="chuDeId"
                   name="chuDeId"
-                  value={formData.chuDeId || ''}
-                  onChange={handleChange}
+                  value={formData.chuDeId}
+                  onChange={(e) => setFormData(prev => ({ ...prev, chuDeId: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   disabled={isLoading}
                 >
                   <option value="">-- Chọn chủ đề --</option>
+                  {formData.chuDeId && !filteredTopics.some(t => String(t.id) === formData.chuDeId) && (
+                    <option value={formData.chuDeId}>Đang chọn (ID {formData.chuDeId})</option>
+                  )}
                   {filteredTopics.map(topic => (
-                    <option key={topic.id} value={topic.id}>
+                    <option key={topic.id} value={String(topic.id)}>
                       {topic.ten}
                     </option>
                   ))}

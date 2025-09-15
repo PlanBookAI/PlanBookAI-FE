@@ -54,6 +54,7 @@ export interface LessonTemplate {
   moTa: string;
   monHoc: string; // "HOA_HOC"
   khoi: GradeLevel;
+  chuDeId?: number;
   trangThai: 'ACTIVE' | 'INACTIVE';
   noiDungMau: any; // JSON template content
   nguoiTaoId: number;
@@ -68,6 +69,7 @@ export interface LessonTemplateCreateRequest {
   moTa: string;
   monHoc: string; // "HOA_HOC"
   khoi: GradeLevel;
+  chuDeId?: number;
   trangThai: 'ACTIVE' | 'INACTIVE';
   noiDungMau: {
     mucTieu: string;
