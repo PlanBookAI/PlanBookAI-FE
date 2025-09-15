@@ -3,8 +3,72 @@
 import Link from 'next/link';
 import Button from '@/components/ui/button';
 import { HeroSidebar, HeroSidebarSection, HeroSidebarAction, HeroSidebarStats } from '@/components/layout/HeroSidebar';
+import { useEffect, useMemo, useState } from 'react';
+import { LessonService } from '@/services/lesson';
+import { examService } from '@/services/exam';
+import type { LessonPlan, LessonStatus } from '@/types/lesson';
 
 export default function DashboardPage() {
+  const [lessonStats, setLessonStats] = useState<{ total: number; draft: number; published: number; ai: number; completed: number } | null>(null);
+  const [examStats, setExamStats] = useState<{ total: number; draft: number; published: number; ai: number } | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLessonStats = async () => {
+      try {
+        const [allRes, draftRes, publishedRes, completedRes, aiRes] = await Promise.all([
+          LessonService.getLessonPlans(),
+          LessonService.getLessonPlans({ trangThai: 'DRAFT' as LessonStatus }),
+          LessonService.getLessonPlans({ trangThai: 'PUBLISHED' as LessonStatus }),
+          LessonService.getLessonPlans({ trangThai: 'COMPLETED' as LessonStatus }),
+          LessonService.getLessonPlans({ suDungAI: true }),
+        ]);
+        const toCount = (res: any) => Array.isArray(res?.duLieu) ? res.duLieu.length : (res?.duLieu ? 1 : 0);
+        if (isMounted) {
+          setLessonStats({
+            total: toCount(allRes),
+            draft: toCount(draftRes),
+            published: toCount(publishedRes),
+            completed: toCount(completedRes),
+            ai: toCount(aiRes),
+          });
+        }
+      } catch (e) {
+        if (isMounted) setLessonStats({ total: 0, draft: 0, published: 0, ai: 0, completed: 0 });
+      }
+    };
+
+    const fetchExamStats = async () => {
+      try {
+        const [allRes, draftRes, publishedRes] = await Promise.all([
+          examService.getExams(undefined, 1, 1),
+          examService.getExams({ trangThai: 'DRAFT' }, 1, 1),
+          examService.getExams({ trangThai: 'PUBLISHED' }, 1, 1),
+        ]);
+        if (isMounted) {
+          setExamStats({
+            total: allRes.totalCount || 0,
+            draft: draftRes.totalCount || 0,
+            published: publishedRes.totalCount || 0,
+            ai: 0,
+          });
+        }
+      } catch (e) {
+        if (isMounted) setExamStats({ total: 0, draft: 0, published: 0, ai: 0 });
+      }
+    };
+
+    setLoading(true);
+    Promise.all([fetchLessonStats(), fetchExamStats()]).finally(() => {
+      if (isMounted) setLoading(false);
+    });
+
+    return () => { isMounted = false; };
+  }, []);
+
+  const l = lessonStats;
+  const ex = examStats;
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-600 to-indigo-900 text-white">
@@ -115,9 +179,9 @@ export default function DashboardPage() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                           </svg>
                         </div>
-                        <span className="text-xs bg-white bg-opacity-30 text-white px-2 py-1 rounded">-</span>
+                        <span className="text-xs bg-white bg-opacity-30 text-white px-2 py-1 rounded">{l ? l.published + l.completed : '-'}</span>
                       </div>
-                      <div className="text-2xl sm:text-3xl font-bold text-white mb-1">-</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{l ? l.total : '-'}</div>
                       <div className="text-blue-200 text-xs sm:text-sm">Tổng giáo án</div>
                     </div>
                     
@@ -130,7 +194,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
                       </div>
-                      <div className="text-2xl sm:text-3xl font-bold text-yellow-300 mb-1">-</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-yellow-300 mb-1">{l ? l.draft : '-'}</div>
                       <div className="text-blue-200 text-xs sm:text-sm">Đang soạn</div>
                     </div>
                     
@@ -143,7 +207,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                       </div>
-                      <div className="text-2xl sm:text-3xl font-bold text-green-300 mb-1">-</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-green-300 mb-1">{l ? l.published : '-'}</div>
                       <div className="text-blue-200 text-xs sm:text-sm">Đã xuất bản</div>
                     </div>
                     
@@ -156,7 +220,7 @@ export default function DashboardPage() {
                         </div>
                         <span className="text-xs bg-purple-400 bg-opacity-40 text-purple-200 px-2 py-1 rounded">AI</span>
                       </div>
-                      <div className="text-2xl sm:text-3xl font-bold text-purple-300 mb-1">-</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-purple-300 mb-1">{l ? l.ai : '-'}</div>
                       <div className="text-blue-200 text-xs sm:text-sm">Dùng AI</div>
                     </div>
                   </div>
@@ -173,9 +237,9 @@ export default function DashboardPage() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                           </svg>
                         </div>
-                        <span className="text-xs bg-white bg-opacity-30 text-white px-2 py-1 rounded">-</span>
+                        <span className="text-xs bg-white bg-opacity-30 text-white px-2 py-1 rounded">{ex ? ex.published : '-'}</span>
                       </div>
-                      <div className="text-2xl sm:text-3xl font-bold text-white mb-1">-</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{ex ? ex.total : '-'}</div>
                       <div className="text-blue-200 text-xs sm:text-sm">Tổng đề thi</div>
                     </div>
                     
@@ -188,7 +252,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
                       </div>
-                      <div className="text-2xl sm:text-3xl font-bold text-orange-300 mb-1">-</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-orange-300 mb-1">{ex ? ex.draft : '-'}</div>
                       <div className="text-blue-200 text-xs sm:text-sm">Đang soạn</div>
                     </div>
                     
@@ -201,7 +265,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="w-2 h-2 bg-teal-400 rounded-full"></div>
                       </div>
-                      <div className="text-2xl sm:text-3xl font-bold text-teal-300 mb-1">-</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-teal-300 mb-1">{ex ? ex.published : '-'}</div>
                       <div className="text-blue-200 text-xs sm:text-sm">Đã xuất bản</div>
                     </div>
                     
@@ -214,7 +278,7 @@ export default function DashboardPage() {
                         </div>
                         <span className="text-xs bg-pink-400 bg-opacity-40 text-pink-200 px-2 py-1 rounded">AI</span>
                       </div>
-                      <div className="text-2xl sm:text-3xl font-bold text-pink-300 mb-1">-</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-pink-300 mb-1">{ex ? ex.ai : '-'}</div>
                       <div className="text-blue-200 text-xs sm:text-sm">Dùng AI</div>
                     </div>
                   </div>
