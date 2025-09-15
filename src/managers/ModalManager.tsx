@@ -61,6 +61,7 @@ export class ModalManager {
         {state.showDetailModal && state.selectedLessonPlan && (
           <LessonDetailModal
             lesson={state.selectedLessonPlan}
+            topics={topics}
             onClose={handlers.onCloseDetailModal}
             onEdit={handlers.onEditFromDetailModal}
           />
