@@ -77,17 +77,17 @@ export default function ExamsPage() {
       if (examData.id) {
         await examService.updateExam(examData.id, examData as DeThi);
       } else {
-        const newExam: Omit<DeThi, 'id' | 'metadata'> = {
+        const danhSachCauHoiId = (examData.cauHois || [])
+          .map((q: any) => (q?.id != null ? String(q.id) : ''))
+          .filter((id: string) => id.length > 0);
+
+        await examService.createExamFromQuestionIds({
           tieuDe: examData.tieuDe || '',
-          huongDan: examData.huongDan || '',
-          khoiLop: examData.khoiLop || 10,
           monHoc: examData.monHoc || 'TOAN',
+          khoiLop: examData.khoiLop || 10,
           thoiGianLamBai: examData.thoiGianLamBai || 45,
-          tongDiem: examData.tongDiem || 10,
-          trangThai: examData.trangThai || 'DRAFT',
-          cauHois: examData.cauHois || []
-        };
-        await examService.createExam(newExam);
+          danhSachCauHoiId,
+        });
       }
       await fetchExams();
       setShowCreateModal(false);

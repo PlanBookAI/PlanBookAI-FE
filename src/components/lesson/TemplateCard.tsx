@@ -9,6 +9,7 @@ interface TemplateCardProps {
   onDelete?: (template: LessonTemplate) => void;
   onToggleShare?: (template: LessonTemplate) => void;
   showOwnerActions?: boolean; // Hiển thị actions cho chủ sở hữu
+  topicName?: string;
 }
 
 export function TemplateCard({ 
@@ -18,7 +19,8 @@ export function TemplateCard({
   onEdit, 
   onDelete, 
   onToggleShare,
-  showOwnerActions = false 
+  showOwnerActions = false,
+  topicName
 }: TemplateCardProps) {
   return (
     <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-6 border border-white border-opacity-20 hover:bg-opacity-30 transition-all cursor-pointer">
@@ -39,6 +41,15 @@ export function TemplateCard({
       {/* Nội dung chính */}
       <h3 className="text-lg font-semibold text-white mb-2">{template.tieuDe}</h3>
       <p className="text-blue-200 text-sm mb-4">{template.moTa}</p>
+      
+      {typeof topicName !== 'undefined' && (
+        <p className="text-blue-300 text-xs mb-3 flex items-center">
+          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+          </svg>
+          {topicName || '-- Chưa chọn chủ đề --'}
+        </p>
+      )}
       
       {/* Thông tin tác giả và thời gian */}
       <div className="flex items-center justify-between text-xs text-blue-300 mb-4">

@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { LessonTemplate, GradeLevel } from '@/types/lesson';
+import { LessonTemplate, GradeLevel, Topic } from '@/types/lesson';
 
 interface TemplateFormModalProps {
   template?: LessonTemplate; // Nếu có template thì là edit, không có là create
+  topics: Topic[];
   onSubmit: (data: any) => Promise<void>;
   onClose: () => void;
   isLoading?: boolean;
 }
 
-export function TemplateFormModal({ template, onSubmit, onClose, isLoading = false }: TemplateFormModalProps) {
+export function TemplateFormModal({ template, topics = [], onSubmit, onClose, isLoading = false }: TemplateFormModalProps) {
   const isEditing = !!template;
   
   // Form state
@@ -18,6 +19,7 @@ export function TemplateFormModal({ template, onSubmit, onClose, isLoading = fal
     moTa: template?.moTa || '',
     monHoc: template?.monHoc || 'HOA_HOC',
     khoi: template?.khoi || 10,
+    chuDeId: template?.chuDeId != null ? String(template.chuDeId) : '',
     trangThai: template?.trangThai || 'INACTIVE',
     mucTieuItems: template?.noiDungMau?.mucTieu ? template.noiDungMau.mucTieu.split(', ') : ['Kiến thức', 'Kỹ năng', 'Thái độ'],
     noiDungKhungItems: Array.isArray(template?.noiDungMau?.noiDung) ? template.noiDungMau.noiDung : ['Ổn định', 'Bài mới', 'Củng cố', 'Dặn dò'],
@@ -93,6 +95,7 @@ export function TemplateFormModal({ template, onSubmit, onClose, isLoading = fal
         moTa: formData.moTa,
         monHoc: formData.monHoc,
         khoi: formData.khoi,
+        chuDeId: formData.chuDeId ? Number(formData.chuDeId) : undefined,
         trangThai: formData.trangThai,
         noiDungMau: {
           mucTieu: formData.mucTieuItems.filter(Boolean).join(', '),
@@ -226,6 +229,33 @@ export function TemplateFormModal({ template, onSubmit, onClose, isLoading = fal
                   <option value={12}>Khối 12</option>
                 </select>
               </div>
+            </div>
+
+            {/* Chủ đề */}
+            <div className="space-y-2">
+              <label htmlFor="chuDeId" className="block text-sm font-medium text-gray-700">
+                Chủ đề
+              </label>
+              <select
+                id="chuDeId"
+                name="chuDeId"
+                value={formData.chuDeId}
+                onChange={(e) => {
+                  setFormData({ ...formData, chuDeId: e.target.value });
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isLoading}
+              >
+                <option value="">-- Chọn chủ đề --</option>
+                {formData.chuDeId && !topics.some(t => String(t.id) === formData.chuDeId) && (
+                  <option value={formData.chuDeId}>Đang chọn (ID {formData.chuDeId})</option>
+                )}
+                {topics.map((topic) => (
+                  <option key={topic.id} value={String(topic.id)}>
+                    {topic.ten}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Trạng thái */}

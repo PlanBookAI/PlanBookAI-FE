@@ -23,7 +23,7 @@ export interface LuaChon {
 }
 
 export interface CauHoi {
-  id: number;
+  id: string;
   noiDung: string;
   monHoc: MonHoc;
   loaiCauHoi: LoaiCauHoi;
@@ -53,7 +53,7 @@ export interface MauDeThi {
 }
 
 export interface DeThi {
-  id: number;
+  id: string;
   tieuDe: string;
   monHoc: MonHoc;
   khoiLop: number;
@@ -126,7 +126,7 @@ export interface TaoDeThiTuCauHoiRequest {
   monHoc: MonHoc;
   khoiLop: number;
   thoiGianLamBai: number;
-  danhSachCauHoiId: number[];
+  danhSachCauHoiId: string[];
 }
 
 // Filter types

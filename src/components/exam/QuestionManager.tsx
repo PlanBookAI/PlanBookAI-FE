@@ -90,7 +90,9 @@ export function QuestionManager({ questions, onQuestionsChange, monHoc, isReadOn
     }
 
     const newQuestion: CauHoi = {
-      id: activeQuestion === null ? Date.now() : questions[activeQuestion].id,
+      id: activeQuestion === null 
+        ? (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? (crypto as any).randomUUID() : String(Date.now()))
+        : questions[activeQuestion].id,
       noiDung: formData.noiDung,
       loaiCauHoi: formData.loaiCauHoi,
       monHoc: formData.monHoc,

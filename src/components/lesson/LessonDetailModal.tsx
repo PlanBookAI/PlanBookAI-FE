@@ -1,13 +1,14 @@
 import { Button } from '@/components/ui/button';
-import { LessonPlan } from '@/types/lesson';
+import { LessonPlan, Topic } from '@/types/lesson';
 
 interface LessonDetailModalProps {
   lesson: LessonPlan;
+  topics?: Topic[];
   onClose: () => void;
   onEdit?: (lesson: LessonPlan) => void;
 }
 
-export function LessonDetailModal({ lesson, onClose, onEdit }: LessonDetailModalProps) {
+export function LessonDetailModal({ lesson, topics, onClose, onEdit }: LessonDetailModalProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -58,7 +59,15 @@ export function LessonDetailModal({ lesson, onClose, onEdit }: LessonDetailModal
               <label className="text-sm font-medium text-gray-700">Lớp học</label>
               <p className="text-gray-900">{lesson.lopHoc || 'Chưa xác định'}</p>
             </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Chủ đề</label>
+              <p className="text-gray-900">
+                {lesson.chuDeId
+                  ? (topics?.find(t => t.id === lesson.chuDeId)?.ten || `ID ${lesson.chuDeId}`)
+                  : 'Chưa xác định'}
+              </p>
           </div>
+        </div>
 
           {/* Mục tiêu */}
           {lesson.mucTieu && (
@@ -69,13 +78,65 @@ export function LessonDetailModal({ lesson, onClose, onEdit }: LessonDetailModal
           )}
 
           {/* Nội dung chi tiết */}
-          {lesson.noiDung?.noiDungChiTiet && (
+          {(lesson.noiDung?.noiDungChiTiet || lesson.noiDung) && (
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Nội dung chi tiết</label>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <pre className="text-sm text-gray-700 whitespace-pre-wrap">
-                  {JSON.stringify(lesson.noiDung.noiDungChiTiet, null, 2)}
-                </pre>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                {(() => {
+                  const d: any = lesson.noiDung?.noiDungChiTiet ?? lesson.noiDung;
+                  const mucTieu = d.mucTieu ?? d.MucTieu ?? '';
+                  const thoiLuong = d.thoiLuong ?? d.ThoiLuong ?? d.thoiluong ?? '';
+                  const phuongPhap = d.phuongPhap ?? d.PhuongPhap ?? '';
+                  const noiDung: string[] = d.noiDung ?? d.NoiDung ?? [];
+                  const thietBi: string[] = d.thietBi ?? d.ThietBi ?? [];
+
+                  return (
+                    <>
+                      {mucTieu && (
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Mục tiêu học tập</div>
+                          <p className="text-gray-900 whitespace-pre-wrap">{mucTieu}</p>
+                        </div>
+                      )}
+
+                      {thoiLuong && (
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Thời lượng</div>
+                          <p className="text-gray-900">{thoiLuong}</p>
+                        </div>
+                      )}
+
+                      {phuongPhap && (
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Phương pháp giảng dạy</div>
+                          <p className="text-gray-900 whitespace-pre-wrap">{phuongPhap}</p>
+                        </div>
+                      )}
+
+                      {Array.isArray(noiDung) && noiDung.length > 0 && (
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Nội dung bài học</div>
+                          <ul className="list-disc list-inside text-gray-900 space-y-1">
+                            {noiDung.map((item, idx) => (
+                              <li key={`nd-${idx}`}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {Array.isArray(thietBi) && thietBi.length > 0 && (
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Thiết bị cần thiết</div>
+                          <ul className="list-disc list-inside text-gray-900 space-y-1">
+                            {thietBi.map((item, idx) => (
+                              <li key={`tb-${idx}`}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
           )}
@@ -122,6 +183,7 @@ export function LessonDetailModal({ lesson, onClose, onEdit }: LessonDetailModal
           <Button
             variant="secondary"
             onClick={onClose}
+            className="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
@@ -132,6 +194,7 @@ export function LessonDetailModal({ lesson, onClose, onEdit }: LessonDetailModal
             <Button
               variant="primary"
               onClick={() => onEdit(lesson)}
+              className="bg-blue-600 text-white hover:bg-blue-700"
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>

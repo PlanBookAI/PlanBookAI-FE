@@ -1,4 +1,4 @@
-import type { DeThi, TrangThai, DeThiFilter } from '@/types/exam';
+import type { DeThi, TrangThai, DeThiFilter, TaoDeThiTuCauHoiRequest } from '@/types/exam';
 import type { ApiResponse, PaginatedData } from '@/types/api';
 import { API_CONFIG } from '@/config/api';
 import { AuthService } from '@/services/auth';
@@ -171,7 +171,7 @@ export class ExamService {
 
 
 
-  async getExamById(id: number): Promise<DeThi> {
+  async getExamById(id: string): Promise<DeThi> {
     const endpoint = API_CONFIG.ENDPOINTS.EXAM.DETAIL(id);
     const response = await this.fetchWithRetry(
       this.makeUrl(endpoint),
@@ -200,7 +200,7 @@ export class ExamService {
     return this.handleResponse<DeThi>(response, endpoint);
   }
 
-  async updateExam(id: number, exam: Partial<DeThi>): Promise<DeThi> {
+  async updateExam(id: string, exam: Partial<DeThi>): Promise<DeThi> {
     const endpoint = API_CONFIG.ENDPOINTS.EXAM.UPDATE(id);
     const response = await this.fetchWithRetry(
       this.makeUrl(endpoint),
@@ -228,6 +228,22 @@ export class ExamService {
       }
     );
     await this.handleResponse<void>(response, endpoint);
+  }
+
+  async createExamFromQuestionIds(payload: TaoDeThiTuCauHoiRequest): Promise<DeThi> {
+    const endpoint = API_CONFIG.ENDPOINTS.EXAM.CREATE_FROM_QUESTION_IDS;
+    const response = await this.fetchWithRetry(
+      this.makeUrl(endpoint),
+      {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+    return this.handleResponse<DeThi>(response, endpoint);
   }
 
 

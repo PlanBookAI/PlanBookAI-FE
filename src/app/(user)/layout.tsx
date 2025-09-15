@@ -125,9 +125,6 @@ export default function UserLayout({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                       </svg>
                       <span>Quản lý giáo án</span>
-                      <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">Active</span>
-                      </div>
                     </Link>
                     
                     {/* Chuẩn bị cho services tương lai */}
@@ -139,7 +136,6 @@ export default function UserLayout({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V9a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                       </svg>
                       <span>Đề thi & Kiểm tra</span>
-                      <span className="ml-auto text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded">Soon</span>
                     </Link>
                     
                     <Link 
@@ -203,30 +199,18 @@ export default function UserLayout({
 
               <div className="border-t pt-4 mt-4">
                 <div className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Khối lớp đang dạy
+                  Lớp học
                 </div>
                 <div className="space-y-1">
-                  <div className="flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                      <span>Khối 10</span>
-                    </div>
-                    <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">Cơ bản</span>
-                  </div>
-                  <div className="flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                      <span>Khối 11</span>
-                    </div>
-                    <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">Nâng cao</span>
-                  </div>
-                  <div className="flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                      <span>Khối 12</span>
-                    </div>
-                    <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded">Tổng hợp</span>
-                  </div>
+                  <Link 
+                    href="/classes" 
+                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7a2 2 0 012-2h3l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+                    </svg>
+                    <span>Quản lý lớp học</span>
+                  </Link>
                 </div>
               </div>
             </div>

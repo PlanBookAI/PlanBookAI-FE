@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ExamPreview, QuestionManager } from '@/components/exam';
-import type { Exam, Question } from '@/types/exam';
+import type { DeThi, CauHoi } from '@/types/exam';
 import { examService } from '@/services/exam';
 
 export default function ExamDetailPage() {
   const { id } = useParams();
-  const [exam, setExam] = useState<Exam | null>(null);
+  const [exam, setExam] = useState<DeThi | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -21,7 +21,7 @@ export default function ExamDetailPage() {
   const fetchExam = async () => {
     try {
       setLoading(true);
-      const result = await examService.getExamById(Number(id));
+      const result = await examService.getExamById(String(id));
       setExam(result);
     } catch (error) {
       console.error('Failed to fetch exam:', error);
@@ -72,7 +72,7 @@ export default function ExamDetailPage() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-200 to-blue-400 bg-clip-text text-transparent">
-            {exam.title}
+            {exam.tieuDe}
           </h1>
           <p className="text-blue-300 mt-2">Chi tiết đề thi</p>
         </div>
@@ -107,23 +107,23 @@ export default function ExamDetailPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm text-blue-400">Môn học</label>
-              <div className="text-blue-100">{exam.subject}</div>
+              <div className="text-blue-100">{exam.monHoc}</div>
             </div>
             <div>
               <label className="block text-sm text-blue-400">Khối</label>
-              <div className="text-blue-100">{exam.grade}</div>
+              <div className="text-blue-100">{exam.khoiLop}</div>
             </div>
             <div>
               <label className="block text-sm text-blue-400">Thời gian</label>
-              <div className="text-blue-100">{exam.duration} phút</div>
+              <div className="text-blue-100">{exam.thoiGianLamBai} phút</div>
             </div>
             <div>
               <label className="block text-sm text-blue-400">Tổng điểm</label>
-              <div className="text-blue-100">{exam.totalPoints} điểm</div>
+              <div className="text-blue-100">{exam.tongDiem ?? 10} điểm</div>
             </div>
             <div>
               <label className="block text-sm text-blue-400">Trạng thái</label>
-              <div className="text-blue-100 capitalize">{exam.status}</div>
+              <div className="text-blue-100 capitalize">{exam.trangThai}</div>
             </div>
           </div>
         </div>
@@ -133,19 +133,19 @@ export default function ExamDetailPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm text-blue-400">Tổng số câu hỏi</label>
-              <div className="text-blue-100">{exam.questions.length}</div>
+              <div className="text-blue-100">{exam.cauHois.length}</div>
             </div>
             <div>
               <label className="block text-sm text-blue-400">Phân loại câu hỏi</label>
               <div className="space-y-2">
                 {Object.entries(
-                  exam.questions.reduce((acc: Record<string, number>, q) => {
-                    acc[q.type] = (acc[q.type] || 0) + 1;
+                  exam.cauHois.reduce((acc: Record<string, number>, q) => {
+                    acc[q.loaiCauHoi] = (acc[q.loaiCauHoi] || 0) + 1;
                     return acc;
                   }, {})
                 ).map(([type, count]) => (
                   <div key={type} className="flex justify-between text-blue-100">
-                    <span className="capitalize">{type.replace('_', ' ')}</span>
+                    <span className="capitalize">{String(type).replace('_', ' ')}</span>
                     <span>{count}</span>
                   </div>
                 ))}
@@ -159,10 +159,10 @@ export default function ExamDetailPage() {
       <div className="bg-blue-900/30 rounded-lg p-6 border border-blue-800">
         <h2 className="text-xl font-semibold text-blue-200 mb-4">Danh sách câu hỏi</h2>
         <QuestionManager
-          questions={exam.questions}
-          onQuestionsChange={(questions: Question[]) => {
+          questions={exam.cauHois}
+          onQuestionsChange={(questions: CauHoi[]) => {
             if (isEditing) {
-              setExam({ ...exam, questions });
+              setExam({ ...exam, cauHois: questions });
             }
           }}
           isReadOnly={!isEditing}
