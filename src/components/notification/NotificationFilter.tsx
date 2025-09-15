@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
 import { NotificationFilters, NotificationType } from '@/types/notification';
 import { useState } from 'react';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/Button';
 import { ExamCard, ExamFilters, ExamFormModal, ExamPreview } from '@/components/exam';
 import { examService } from '@/services/exam';
 import type { DeThi, TrangThai, DeThiFilter } from '@/types/exam';

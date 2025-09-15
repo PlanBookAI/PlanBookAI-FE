@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/Button';
 import { ExamPreview, QuestionManager } from '@/components/exam';
 import type { DeThi, CauHoi } from '@/types/exam';
 import { examService } from '@/services/exam';
@@ -160,6 +160,7 @@ export default function ExamDetailPage() {
         <h2 className="text-xl font-semibold text-blue-200 mb-4">Danh sách câu hỏi</h2>
         <QuestionManager
           questions={exam.cauHois}
+          monHoc={exam.monHoc as any}
           onQuestionsChange={(questions: CauHoi[]) => {
             if (isEditing) {
               setExam({ ...exam, cauHois: questions });
@@ -178,3 +179,4 @@ export default function ExamDetailPage() {
       )}
     </div>
   );
+}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/button';
 import { NotificationSettings } from '@/types/notification';
 import { notificationService } from '@/services/notification';
 

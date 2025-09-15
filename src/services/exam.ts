@@ -216,8 +216,9 @@ export class ExamService {
     return this.handleResponse<DeThi>(response, endpoint);
   }
 
-  async deleteExam(id: number): Promise<void> {
-    const endpoint = API_CONFIG.ENDPOINTS.EXAM.DELETE(id);
+  async deleteExam(id: number | string): Promise<void> {
+    const numericId = typeof id === 'string' ? Number(id) : id;
+    const endpoint = API_CONFIG.ENDPOINTS.EXAM.DELETE(numericId);
     const response = await this.fetchWithRetry(
       this.makeUrl(endpoint),
       {

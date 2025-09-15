@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/button';
 import type { Topic, LessonTabType, GradeLevel } from '@/types/lesson';
 
 interface LessonFiltersProps {

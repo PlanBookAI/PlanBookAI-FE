@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/button';
 import type { Topic } from '@/types/lesson';
 
 interface TopicCardProps {

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
 import { Turnstile } from '@/components/ui/Turnstile';
 import { useTurnstile } from '@/hooks/useTurnstile';

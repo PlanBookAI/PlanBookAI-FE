@@ -6,7 +6,7 @@ import { NotificationCard } from '@/components/notification/NotificationCard';
 import { NotificationSettingsForm } from '@/components/notification/NotificationSettingsForm';
 import { notificationService } from '@/services/notification';
 import { NotificationDto, NotificationFilters, NotificationSettings } from '@/types/notification';
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/button';
 
 const ITEMS_PER_PAGE = 10;
 

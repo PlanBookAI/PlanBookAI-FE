@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/button';
 import { LessonPlan, Topic } from '@/types/lesson';
 
 interface LessonDetailModalProps {
