@@ -164,6 +164,7 @@ export default function TeacherLessonPlansPage() {
     onUpdateLessonPlan: handlers.handleUpdateLessonPlan,
     onCreateFromTemplate: handlers.handleCreateFromTemplate,
     onCreateTemplate: handlers.handleCreateTemplate,
+    onUpdateTemplate: handlers.handleUpdateTemplate,
     onSelectTemplate: handlers.handleSelectTemplate,
     onCloseDetailModal: handlers.handleCloseDetailModal,
     onCloseCreateModal: handlers.handleCloseCreateModal,
@@ -323,6 +324,7 @@ export default function TeacherLessonPlansPage() {
                   key={template.id}
                   template={template}
                   onView={handlers.handleViewTemplate}
+                  topicName={(template.chuDeId && (topicHooks.topics.find(t => t.id === template.chuDeId)?.ten)) || undefined}
                 />
               ))}
             </div>
@@ -588,15 +590,6 @@ export default function TeacherLessonPlansPage() {
           templates: templateHooks.loading
           }
         })}
-      {/* Template Form Modal */}
-      {modalState.showCreateTemplateModal && (
-          <TemplateFormModal
-            template={modalState.selectedTemplate || undefined}
-            onSubmit={modalState.selectedTemplate ? handlers.handleUpdateTemplate : handlers.handleCreateTemplate}
-            onClose={handlers.handleCloseCreateTemplateModal}
-            isLoading={templateHooks.loading}
-          />
-        )}
 
         {/* Create From Template Modal */}
         {modalState.showCreateFromTemplateModal && modalState.selectedTemplate && (
