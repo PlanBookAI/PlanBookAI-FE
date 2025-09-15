@@ -27,23 +27,11 @@ export default function ExamsPage() {
       setLoading(true);
       setError(null);
       const trangThai = activeTab !== 'all' ? activeTab as TrangThai : undefined;
-      const result = await examService.getExams({ 
-        ...filters, 
-        trangThai 
-      });
+      const result = await examService.getExams({ ...filters, trangThai });
       setExams(result.items);
     } catch (error) {
       console.error('Failed to fetch exams:', error);
-      // Set a more user-friendly error message based on the error type
-      if (!navigator.onLine) {
-        setError('Vui lòng kiểm tra kết nối internet của bạn và thử lại.');
-      } else {
-        setError(
-          error instanceof Error 
-            ? error.message 
-            : 'Có lỗi xảy ra khi tải danh sách đề thi. Vui lòng thử lại sau.'
-        );
-      }
+      setError(error instanceof Error ? error.message : 'Không thể tải danh sách đề thi');
       setExams([]);
     } finally {
       setLoading(false);
@@ -67,27 +55,27 @@ export default function ExamsPage() {
         await fetchExams();
       } catch (error) {
         console.error('Failed to delete exam:', error);
+        alert(error instanceof Error ? error.message : 'Không thể xóa đề thi');
       }
     }
   };
 
-
-  const handleSubmit = async (examData: Partial<DeThi>) => {
+  const handleCopy = async (exam: DeThi) => {
     try {
-      if (examData.id) {
-        await examService.updateExam(examData.id, examData as DeThi);
+      await examService.copyExam(exam.id);
+      await fetchExams();
+    } catch (error) {
+      console.error('Failed to copy exam:', error);
+      alert(error instanceof Error ? error.message : 'Không thể sao chép đề thi');
+    }
+  };
+
+  const handleSubmit = async (exam: Partial<DeThi>) => {
+    try {
+      if (exam.id) {
+        await examService.updateExam(exam.id, exam);
       } else {
-        const newExam: Omit<DeThi, 'id' | 'metadata'> = {
-          tieuDe: examData.tieuDe || '',
-          huongDan: examData.huongDan || '',
-          khoiLop: examData.khoiLop || 10,
-          monHoc: examData.monHoc || 'TOAN',
-          thoiGianLamBai: examData.thoiGianLamBai || 45,
-          tongDiem: examData.tongDiem || 10,
-          trangThai: examData.trangThai || 'DRAFT',
-          cauHois: examData.cauHois || []
-        };
-        await examService.createExam(newExam);
+        await examService.createExam(exam);
       }
       await fetchExams();
       setShowCreateModal(false);
@@ -106,10 +94,10 @@ export default function ExamsPage() {
           <h2 className="text-xl font-semibold text-blue-100">Trạng thái</h2>
           <div className="space-y-2">
             {[
-              { id: 'all', label: 'Tất cả', count: exams?.length || 0 },
-              { id: 'DRAFT', label: 'Bản nháp', count: exams?.filter(e => e.trangThai === 'DRAFT')?.length || 0 },
-              { id: 'PUBLISHED', label: 'Đã xuất bản', count: exams?.filter(e => e.trangThai === 'PUBLISHED')?.length || 0 },
-              { id: 'ARCHIVED', label: 'Lưu trữ', count: exams?.filter(e => e.trangThai === 'ARCHIVED')?.length || 0 }
+              { id: 'all', label: 'Tất cả', count: exams.length },
+              { id: 'DRAFT', label: 'Bản nháp', count: exams.filter(e => e.trangThai === 'DRAFT').length },
+              { id: 'PUBLISHED', label: 'Đã xuất bản', count: exams.filter(e => e.trangThai === 'PUBLISHED').length },
+              { id: 'ARCHIVED', label: 'Lưu trữ', count: exams.filter(e => e.trangThai === 'ARCHIVED').length }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -217,19 +205,16 @@ export default function ExamsPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             <span className="ml-2 text-blue-300">Đang tải...</span>
           </div>
-        ) : error ? (
-          <div className="flex justify-center items-center min-h-[200px] text-red-500">
-            <p>{error}</p>
-          </div>
-        ) : (exams?.length ?? 0) > 0 ? (
+        ) : exams.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {(exams || []).map((exam) => (
+            {exams.map((exam) => (
               <ExamCard
                 key={exam.id}
                 exam={exam}
                 onEdit={handleEdit}
                 onView={handleView}
                 onDelete={handleDelete}
+                onCopy={handleCopy}
               />
             ))}
           </div>
@@ -245,30 +230,30 @@ export default function ExamsPage() {
             </p>
           </div>
         )}
-
-        {/* Modals */}
-        {showCreateModal && (
-          <ExamFormModal
-            isOpen={true}
-            onClose={() => {
-              setShowCreateModal(false);
-              setSelectedExam(null);
-            }}
-            onSubmit={handleSubmit}
-            exam={selectedExam || undefined}
-          />
-        )}
-
-        {selectedExam && showPreview && (
-          <ExamPreview
-            exam={selectedExam}
-            onClose={() => {
-              setShowPreview(false);
-              setSelectedExam(null);
-            }}
-          />
-        )}
       </div>
+
+      {/* Modals */}
+      {showCreateModal && (
+        <ExamFormModal
+          isOpen={showCreateModal}
+          onClose={() => {
+            setShowCreateModal(false);
+            setSelectedExam(null);
+          }}
+          onSubmit={handleSubmit}
+          exam={selectedExam}
+        />
+      )}
+
+      {showPreview && selectedExam && (
+        <ExamPreview
+          exam={selectedExam}
+          onClose={() => {
+            setShowPreview(false);
+            setSelectedExam(null);
+          }}
+        />
+      )}
     </div>
   );
 }
