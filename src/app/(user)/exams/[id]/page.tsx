@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import Button from '@/components/ui/Button';
+import Button from '@/components/ui/button';
 import { ExamPreview, QuestionManager } from '@/components/exam';
 import type { DeThi, CauHoi } from '@/types/exam';
 import { examService } from '@/services/exam';
